@@ -23,7 +23,7 @@ module GraphQL
       end
 
       def self.extended(base)
-        base.public_send(:include, Validator)
+        base.send(:include, Validator)
       end
 
       module Validator
