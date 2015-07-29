@@ -21,14 +21,6 @@ module GraphQL
       super && !type.nil?
     end
 
-    def type
-      @config.type
-    end
-
-    def default_value
-      @config.default_value
-    end
-
   end
 
 end

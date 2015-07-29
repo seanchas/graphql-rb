@@ -22,6 +22,14 @@ module GraphQL
         raise GraphQL::Error::ValidationError, "" unless valid?
       end
 
+      def method_missing(name, *args, &block)
+        if @config.respond_to?(name)
+          @config.public_send(name, *args, &block)
+        else
+          super
+        end
+      end
+
     end
 
   end
