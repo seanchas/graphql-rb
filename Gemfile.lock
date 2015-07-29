@@ -3,7 +3,6 @@ PATH
   specs:
     graphql (0.0.1)
       parslet
-      rspec
 
 GEM
   remote: https://rubygems.org/
@@ -31,3 +30,4 @@ PLATFORMS
 
 DEPENDENCIES
   graphql!
+  rspec

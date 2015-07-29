@@ -9,14 +9,15 @@ Gem::Specification.new do |s|
   s.version     = GraphQL::VERSION
   s.authors     = ["Eugene Kovalev"]
   s.email       = ["seanchas@gmail.com"]
-  s.homepage    = "https://insights.vc"
+  s.homepage    = "https://github.com/seanchas/graphql"
   s.summary     = "Summary of GraphQL."
   s.description = "Description of GraphQL."
 
-  s.files = Dir["{lib}/**/*", "Rakefile"]
-  s.test_files = Dir["test/**/*"]
+  s.files       = Dir["{lib}/**/*", "Rakefile"]
+  s.test_files  = Dir["spec/**/*"]
+
+  s.add_development_dependency "rspec"
 
   s.add_dependency "parslet"
-  s.add_dependency "rspec"
 
 end
