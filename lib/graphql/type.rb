@@ -2,6 +2,7 @@ require 'graphql/type/definable'
 require 'graphql/type/configurable'
 require 'graphql/type/base'
 require 'graphql/type/scalar'
+require 'graphql/type/argument'
 require 'graphql/type/list'
 require 'graphql/type/non_null'
 require 'graphql/type/field'
@@ -22,6 +23,11 @@ module GraphQL
 
     def self.type?(type)
       Type.find { |t| type.class <= t }
+    end
+
+
+    def self.input_type?(type)
+      InputType.find { |t| type.class <= t }
     end
 
 
