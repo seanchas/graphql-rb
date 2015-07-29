@@ -25,10 +25,6 @@ module GraphQL
         @config.coerceLiteral ? @config.coerceLiteral.call(value) : nil
       end
 
-      def to_s
-        @name
-      end
-
     end
 
   end

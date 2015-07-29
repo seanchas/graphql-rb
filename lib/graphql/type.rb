@@ -31,6 +31,11 @@ module GraphQL
     end
 
 
+    def self.output_type?(type)
+      OutputType.find { |t| type.class <= t }
+    end
+
+
     def self.named_type(type)
       while type.is_a?(List) || type.is_a?(NonNull)
         type = type.of_type

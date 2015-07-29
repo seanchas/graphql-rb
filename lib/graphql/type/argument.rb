@@ -17,10 +17,6 @@ module GraphQL
 
     configure_with ArgumentDefinition
 
-    def valid?
-      super && !type.nil?
-    end
-
   end
 
 end
