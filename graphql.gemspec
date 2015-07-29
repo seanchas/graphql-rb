@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.files       = Dir["{lib}/**/*", "Rakefile"]
   s.test_files  = Dir["spec/**/*"]
 
+  s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
 
   s.add_dependency "parslet"
