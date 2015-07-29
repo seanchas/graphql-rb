@@ -5,7 +5,8 @@ module GraphQL
 
       extend Definable
 
-      attr_definable :name, :description
+      attr_definable :name,         -> (value) { value.is_a?(::String) }
+      attr_definable :description,  -> (value) { value.nil? || value.is_a?(::String) }
 
     end
 

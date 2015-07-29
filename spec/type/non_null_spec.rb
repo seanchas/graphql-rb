@@ -6,6 +6,7 @@ RSpec.describe GraphQL::Type::NonNull do
   before(:example) do
     @object = GraphQL::Type::Object.new do
       name "MyObjectType"
+      description "MyObjectType description"
     end
     @string = "abc"
   end

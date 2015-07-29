@@ -5,7 +5,10 @@ module GraphQL
 
       extend Definable
 
-      attr_definable :name, :description, :coerce, :coerceLiteral
+      attr_definable :name,           -> (value) { value.is_a?(::String) }
+      attr_definable :description,    -> (value) { value.nil? || value.is_a?(::String) }
+      attr_definable :coerce,         -> (value) { value.is_a?(::Proc) }
+      attr_definable :coerceLiteral,  -> (value) { value.is_a?(::Proc) }
 
     end
 
