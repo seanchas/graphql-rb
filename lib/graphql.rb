@@ -1,3 +1,3 @@
-require 'graphql/error'
-require 'graphql/type'
-require 'graphql/query'
+require 'graphql/core.rb'
+require 'graphql/type.rb'
+require 'graphql/version.rb'

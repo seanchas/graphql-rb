@@ -1,21 +1,21 @@
 module GraphQL
-  module Type
 
-    class NonNull
+  class GraphQLNonNull
 
-      attr_reader :of_type
+    NESTING_ERROR = 'Cannon nest NonNull inside NonNull'
 
-      def initialize(of_type)
-        raise GraphQL::Error::TypeError, "" unless GraphQL::Type.type?(of_type)
-        raise GraphQL::Error::TypeError, "" if of_type.is_a?(NonNull)
-        @of_type = of_type
-      end
+    attr_reader :of_type
 
-      def to_s
-        "#{of_type.to_s}!"
-      end
+    def initialize(of_type)
+      # TODO: check if of_type is a GraphQL type
+      raise NESTING_ERROR if of_type.is_a?(GraphQLNonNull)
+      @of_type = of_type
+    end
 
+    def to_s
+      of_type.to_s + '!'
     end
 
   end
+
 end

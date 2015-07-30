@@ -1,28 +1,16 @@
 require 'graphql'
 
-RSpec.describe GraphQL::Type::List do
+RSpec.describe GraphQL::GraphQLList do
 
-
-  before(:example) do
-    @object = GraphQL::Type::Object.new do
-      name "MyObjectType"
-    end
-    @string = "abc"
-  end
-
-
-  it "should make GraphQL::Type::List of GraphQL::Type::Object" do
+  it 'Should create GraphQLList of String' do
     expect {
-      GraphQL::Type::List.new(@object)
+      GraphQL::GraphQLList.new(String)
     }.not_to raise_error
   end
 
-
-  it "should not make GraphQL::Type::List of String" do
-    expect {
-      GraphQL::Type::List.new(@string)
-    }.to raise_error(GraphQL::Error::TypeError)
+  it 'Should have string value "[String]" of GraphQLList of String' do
+    listType = GraphQL::GraphQLList.new(String)
+    expect(listType.to_s).to eql('[String]')
   end
-
 
 end

@@ -1,37 +1,22 @@
 require 'graphql'
 
-RSpec.describe GraphQL::Type::NonNull do
+RSpec.describe GraphQL::GraphQLNonNull do
 
-
-  before(:example) do
-    @object = GraphQL::Type::Object.new do
-      name "MyObjectType"
-      description "MyObjectType description"
-    end
-    @string = "abc"
-  end
-
-
-  it "should make GraphQL::Type::NonNull of GraphQL::Type::Object" do
+  it 'Should create GraphQLNonNull of String' do
     expect {
-      GraphQL::Type::NonNull.new(@object)
+      GraphQL::GraphQLNonNull.new(String)
     }.not_to raise_error
   end
 
-
-  it "should not make GraphQL::Type::NonNull of String" do
+  it 'Should not create GraphQLNonNull of GraphQLNonNull' do
     expect {
-      GraphQL::Type::NonNull.new(@string)
-    }.to raise_error(GraphQL::Error::TypeError)
+      GraphQL::GraphQLNonNull.new(GraphQL::GraphQLNonNull.new(String))
+    }.to raise_error(GraphQL::GraphQLNonNull::NESTING_ERROR)
   end
 
-
-  it "should not make GraphQL::Type::NonNull of GraphQL::Type::NonNull" do
-    expect {
-      nonNullObject = GraphQL::Type::NonNull.new(@object)
-      GraphQL::Type::NonNull.new(nonNullObject)
-    }.to raise_error(GraphQL::Error::TypeError)
+  it 'Should have string value "String!" of GraphQLNonNull of String' do
+    nonNullType = GraphQL::GraphQLNonNull.new(String)
+    expect(nonNullType.to_s).to eql('String!')
   end
-
 
 end
