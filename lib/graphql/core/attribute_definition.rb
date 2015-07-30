@@ -43,7 +43,7 @@ module GraphQL
         return true if !!allow_null && value.nil?
         type_is_valid = type.nil? ? true : (type.is_a?(Proc) ? type.call(value) : value.is_a?(type))
         proc_is_valid = proc.nil? ? true : proc.call(value)
-        type_is_valid && proc_is_valid
+        instance_variable_defined?(:"@#{name}") && type_is_valid && proc_is_valid
       end
     end
 
