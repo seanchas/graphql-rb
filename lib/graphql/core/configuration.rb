@@ -22,25 +22,29 @@ module GraphQL
     end
 
 
+    class Base
+      extend GraphQL::GraphQLTypeAttributeDefinition
+
+      def initialize(options = {})
+        extend(options)
+      end
+
+      def extend(options = {})
+        options.each { |key, value| send(key, value) }
+        self
+      end
+    end
+
+
     module ClassMethods
 
-      def configuration
-        @configuration_class ||= Class.new do
-          extend GraphQL::GraphQLTypeAttributeDefinition
-
-          def initialize(options = {})
-            extend(options)
-          end
-
-          def extend(options = {})
-            options.each { |key, value| send(key, value) }
-            self
-          end
-        end
+      def configuration(configuration_class = nil)
+        @configuration_class = configuration_class if configuration_class && configuration_class <= Base
+        @configuration_class ||= Class.new(Base)
       end
 
       def attribute(*args, &block)
-        self.configuration.define_attribute(*args, &block)
+        self.configuration.attribute(*args, &block)
       end
 
       def new(*args, &block)
@@ -57,7 +61,6 @@ module GraphQL
       end
 
     end
-
 
   end
 end

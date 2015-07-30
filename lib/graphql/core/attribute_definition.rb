@@ -5,27 +5,18 @@ module GraphQL
       @defined_attributes ||= []
     end
 
-    def define_attribute(name, type: nil, strategy: :overwrite, allow_null: false, &block)
+    def attribute(name, type: nil, allow_null: false, &block)
       defined_attributes << name
       define_getter(name)
-      define_setter(name, strategy)
-      define_validator(name, type, strategy, allow_null, block)
+      define_setter(name)
+      define_validator(name, type, allow_null, block)
     end
 
     private
 
-    def define_setter(name, strategy)
+    def define_setter(name)
       define_method "#{name}=" do |*args|
-        next_value = args.first
-        curr_value = public_send(name)
-
-        next_value = case strategy
-          when :concat then (curr_value || []).concat(next_value)
-          when :merge then (curr_value || {}).merge(next_value)
-          else next_value
-        end
-
-        instance_variable_set(:"@#{name}", next_value)
+        instance_variable_set(:"@#{name}", args.first)
         public_send(name)
       end
     end
@@ -37,7 +28,7 @@ module GraphQL
       end
     end
 
-    def define_validator(name, type, strategy, allow_null, proc)
+    def define_validator(name, type, allow_null, proc)
       define_method :"#{name}?" do
         value = public_send(name)
         return true if !!allow_null && value.nil?
