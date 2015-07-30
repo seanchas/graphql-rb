@@ -1,5 +1,4 @@
 require_relative './attribute_definition'
-require_relative './attribute_validation'
 
 module GraphQL
   module GraphQLTypeConfiguration
@@ -8,13 +7,11 @@ module GraphQL
       base.extend(ClassMethods)
     end
 
-
     def valid?
-      @configuration.class.validations.all? do |name, proc|
-        proc.call(@configuration.send(name))
+      @configuration.class.defined_attributes.all? do |name|
+        @configuration.send(:"#{name}?")
       end
     end
-
 
     def method_missing(name, *args, &block)
       if @configuration.class.defined_attributes.include?(name)
@@ -30,8 +27,6 @@ module GraphQL
       def configuration
         @configuration_class ||= Class.new do
           extend GraphQL::GraphQLTypeAttributeDefinition
-          extend GraphQL::GraphQLTypeAttributeValidation
-
 
           def initialize(options = {})
             extend(options)
@@ -47,12 +42,6 @@ module GraphQL
       def attribute(*args, &block)
         self.configuration.define_attribute(*args, &block)
       end
-
-
-      def validate(*args, &block)
-        self.configuration.validate_attribute(*args, &block)
-      end
-
 
       def new(*args, &block)
         configuration   = args.first if args.first.is_a?(self.configuration)

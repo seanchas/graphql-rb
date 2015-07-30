@@ -2,15 +2,10 @@ module GraphQL
 
   class GraphQLScalarType < GraphQLTypeBase
 
-    attribute :name
-    attribute :description
-    attribute :coerce
-    attribute :coerce_literal
-
-    validate :name,           type: String
-    validate :description,    type: String, allow_nil: true
-    validate :coerce,         type: Proc
-    validate :coerce_literal, type: Proc
+    attribute :name,            type: String
+    attribute :description,     type: String, allow_null: true
+    attribute :coerce,          type: Proc
+    attribute :coerce_literal,  type: Proc
 
     def coerce(value)
       @configuration.coerce.call(value)

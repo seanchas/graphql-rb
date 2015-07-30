@@ -11,8 +11,7 @@ RSpec.describe GraphQL::GraphQLTypeBase do
 
   def build_class_with_validation
     Class.new(GraphQL::GraphQLTypeBase) do
-      attribute :name
-      validate  :name, type: String
+      attribute :name, type: String
       should_validate!
     end
   end
