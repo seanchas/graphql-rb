@@ -41,7 +41,7 @@ module GraphQL
       define_method :"#{name}?" do
         value = public_send(name)
         return true if !!allow_null && value.nil?
-        type_is_valid = type.nil? ? true : value.is_a?(type)
+        type_is_valid = type.nil? ? true : (type.is_a?(Proc) ? type.call(value) : value.is_a?(type))
         proc_is_valid = proc.nil? ? true : proc.call(value)
         type_is_valid && proc_is_valid
       end
