@@ -13,12 +13,16 @@ module GraphQL
     validate :coerce_literal, type: Proc
 
     def coerce(value)
-      @config.coerce(value)
+      @configuration.coerce.call(value)
     end
 
-    def coerse_literal(ast)
+    def coerce_literal(ast)
       # TODO: check if ast is a GraphQLValue type
-      @config.coerce_literal.call(ast) rescue nil
+      @configuration.coerce_literal.nil? ? nil : @configuration.coerce_literal.call(ast)
+    end
+
+    def to_s
+      name.to_s
     end
 
   end

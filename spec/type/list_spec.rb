@@ -2,13 +2,13 @@ require 'graphql'
 
 RSpec.describe GraphQL::GraphQLList do
 
-  it 'Should create GraphQLList of String' do
+  it 'Should create' do
     expect {
       GraphQL::GraphQLList.new(String)
     }.not_to raise_error
   end
 
-  it 'Should have string value "[String]" of GraphQLList of String' do
+  it 'Should convert instance to string' do
     listType = GraphQL::GraphQLList.new(String)
     expect(listType.to_s).to eql('[String]')
   end
