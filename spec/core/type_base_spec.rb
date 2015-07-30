@@ -9,8 +9,25 @@ RSpec.describe GraphQL::GraphQLTypeBase do
     end
   end
 
+  def build_class_with_validation
+    Class.new(GraphQL::GraphQLTypeBase) do
+      attribute :name
+      validate  :name, type: String
+      should_validate!
+    end
+  end
+
   def build_instance(attributes = {})
     build_class.new(attributes)
+  end
+
+  def build_instance_with_validation(attributes = {})
+    build_class_with_validation.new(attributes)
+  end
+
+
+  it 'Should not create instance with validation' do
+    expect { build_instance_with_validation }.to raise_error('Invalid')
   end
 
 
