@@ -2,6 +2,12 @@ require 'graphql'
 
 RSpec.describe GraphQL::Argument do
 
+  it "Should not make GraphQL::Argument without arguments" do
+    expect {
+      GraphQL::Argument.new {}
+    }.to raise_error(GraphQL::Error::ValidationError)
+  end
+
   it "Should not make GraphQL::Argument without type" do
     expect {
       GraphQL::Argument.new do
