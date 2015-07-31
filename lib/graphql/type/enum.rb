@@ -103,7 +103,7 @@ module GraphQL
     def values_by_value
       @values_by_value ||= begin
         values.reduce({}) do |memo, pair|
-          name, value = pair
+          value = pair.last
           memo[value.value] = value
           memo
         end
