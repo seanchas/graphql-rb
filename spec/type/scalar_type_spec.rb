@@ -19,6 +19,21 @@ RSpec.describe GraphQL::GraphQLScalarType do
     GraphQL::GraphQLString
   end
 
+  def int
+    GraphQL::GraphQLInt
+  end
+
+  def float
+    GraphQL::GraphQLFloat
+  end
+
+  def boolean
+    GraphQL::GraphQLBoolean
+  end
+
+  def id
+    GraphQL::GraphQLID
+  end
 
   it 'Should perform to_s' do
     expect(valid_scalar.to_s).to eql(valid_scalar.name)
@@ -42,6 +57,34 @@ RSpec.describe GraphQL::GraphQLScalarType do
   end
 
 
+  # Int
+  #
+  it 'Should coerce value to int' do
+    expect(int.coerce('123')).to eql(123)
+    expect(int.coerce(123.45)).to eql(123)
+    expect(int.coerce(123.5)).to eql(124)
+    expect(int.coerce(-123.5)).to eql(-124)
+  end
+
+  it 'Should not coerce value to int' do
+    expect(int.coerce('abc')).to eql(nil)
+    expect(int.coerce_literal(kind: :string, value: '123')).not_to eql(123)
+  end
+
+
+  # Float
+  #
+  it 'Should coerce value to float' do
+    expect(float.coerce('123')).to eql(123.0)
+    expect(float.coerce(123)).to eql(123.0)
+  end
+
+  it 'Should not coerce value to float' do
+    expect(float.coerce('abc')).to eql(nil)
+    expect(float.coerce_literal(kind: :string, value: '123')).not_to eql(123)
+  end
+
+
   # String
   #
   it 'Should coerce value to string' do
@@ -57,4 +100,27 @@ RSpec.describe GraphQL::GraphQLScalarType do
   it 'Should not coerce value to string' do
     expect(string.coerce_literal(kind: :int, value: 123)).to eql(nil)
   end
+
+  # Boolean
+  #
+  it 'Should coerce value to boolean' do
+    expect(boolean.coerce('true')).to eql(true)
+    expect(boolean.coerce(0)).to eql(false)
+  end
+
+  it 'Should not coerce value to boolean' do
+    expect(boolean.coerce_literal(kind: :string, value: '123')).not_to eql(123)
+  end
+
+  # ID
+  #
+  it 'Should coerce value to id' do
+    expect(id.coerce(123)).to eql('123')
+    expect(id.coerce('abc')).to eql('abc')
+  end
+
+  it 'Should not coerce value to id' do
+    expect(boolean.coerce_literal(kind: :string, value: '123')).not_to eql(123)
+  end
+
 end
