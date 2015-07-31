@@ -15,7 +15,7 @@ RSpec.describe GraphQL::GraphQLEnum do
         'RED'   => GraphQL::GraphQLEnumValue.new(name: 'RED',   value: 0),
         'GREEN' => GraphQL::GraphQLEnumValue.new(name: 'GREEN', value: 1),
         'BLUE'  => GraphQL::GraphQLEnumValue.new(name: 'BLUE',  value: 2),
-        'ALPHA' => GraphQL::GraphQLEnumValue.new(name: 'ALPHA', value: 3, deprecation_reason: 'Just kidding')
+        'ALPHA' => GraphQL::GraphQLEnumValue.new(name: 'ALPHA', description: 'Alpha channel')
       })
     end
   end
@@ -27,7 +27,7 @@ RSpec.describe GraphQL::GraphQLEnum do
       value :RED,     0
       value :GREEN,   1
       value :BLUE,    2
-      value :ALPHA,   3, deprecation_reason: 'Just kidding'
+      value :ALPHA,   description: 'Alpha channel'
     end
   end
 
