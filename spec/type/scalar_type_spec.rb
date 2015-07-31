@@ -20,7 +20,7 @@ RSpec.describe GraphQL::GraphQLScalarType do
   end
 
 
-  it 'Should convert instance to string' do
+  it 'Should perform to_s' do
     expect(valid_scalar.to_s).to eql(valid_scalar.name)
   end
 
