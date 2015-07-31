@@ -36,8 +36,6 @@ RSpec.describe GraphQL::GraphQLEnum do
     expect { create_value(name: 'A', value: nil) }.not_to raise_error
     expect { create_value(name: 'A', value: 1, description: 'B') }.not_to raise_error
     expect { create_value(name: 'A', value: 1, description: 'B', deprecation_reason: 'C') }.not_to raise_error
-    expect { create_rgba_enum_full }.not_to raise_error
-    expect { create_rgba_enum_short }.not_to raise_error
   end
 
   it 'Should set attributed on enum value' do
@@ -92,6 +90,13 @@ RSpec.describe GraphQL::GraphQLEnum do
       expect(type.coerce_literal({ kind: :enum, value: 'C' })).to eql(nil)
       expect(type.values.keys.sort).to eql(['A', 'B'])
     }.not_to raise_error
+
+    expect { create_rgba_enum_full }.not_to raise_error
+    expect { create_rgba_enum_short }.not_to raise_error
+  end
+
+  it "Should convert instance to string" do
+    expect(create_rgba_enum_short.to_s).to eql('RGBA')
   end
 
   it "Should not create enum type" do
