@@ -14,7 +14,7 @@ module GraphQL
     end
 
     def method_missing(name, *args, &block)
-      if @configuration.class.defined_attributes.include?(name)
+      if @configuration.respond_to?(name)
         @configuration.send(name, *args, &block)
       else
         super

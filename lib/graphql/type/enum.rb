@@ -1,5 +1,43 @@
 module GraphQL
 
+  ###
+  #
+  # == GraphQLEnum Definition
+  #
+  # Some leaf values of requests and input values are Enums. GraphQL serializes
+  # Enum values as strings, however internally Enums can be represented by any
+  # kind of type, often integers.
+  #
+  # Examples:
+  #
+  #   RGBAType = GraphQLEnum.new do
+  #     name  'RGBA'
+  #
+  #     values({
+  #       'RED'   => GraphQL::GraphQLEnumValue.new(name: 'RED',   value: 0),
+  #       'GREEN' => GraphQL::GraphQLEnumValue.new(name: 'GREEN', value: 1),
+  #       'BLUE'  => GraphQL::GraphQLEnumValue.new(name: 'BLUE',  value: 2),
+  #       'ALPHA' => GraphQL::GraphQLEnumValue.new(name: 'ALPHA', value: 3, deprecation_reason: 'Just kidding')
+  #     })
+  #   end
+  #
+  #   RGBAType = GraphQLEnum.new do
+  #     name  'RGBA'
+  #
+  #     value :RED,   0
+  #     value :GREEN, 1
+  #     value :BLUE,  2
+  #     value :ALPHA, 3, deprecation_reason: 'Just kidding'
+  #   end
+  #
+  # Note: Value name will be converted into string
+  #
+  # Note: If a value is not provided in a definition, the name of the enum value
+  # will be used as it's internal value.
+  #
+  ###
+
+
   class GraphQLEnumValue < GraphQLTypeBase
 
     attribute :name,                type: String
@@ -11,6 +49,7 @@ module GraphQL
 
   end
 
+
   class GraphQLEnumConfiguration < GraphQLTypeConfiguration::Base
     attribute :name,        type: String
     attribute :description, type: String, allow_null: true
@@ -21,7 +60,8 @@ module GraphQL
     end
 
     def value(value_name, value_value = nil, value_options = {})
-      (self.values ||= {})[name] = GraphQLEnumValue.new(value_options.merge({ name: value_name, value: value_value }))
+      value_name = value_name.to_s if value_name.is_a?(Symbol)
+      (self.values ||= {})[value_name] = GraphQLEnumValue.new(value_options.merge({ name: value_name, value: value_value }))
     end
   end
 
@@ -32,19 +72,42 @@ module GraphQL
     should_validate!
 
     def values
-
+      @values ||= begin
+        @configuration.values.reduce({}) do |memo, pair|
+          name, value   = pair
+          name          = name.to_s
+          value.name    = name
+          value.value   = name if value.value.nil?
+          memo[name]    = value
+          memo
+        end
+      end
     end
 
     def coerce(value)
-
+      values_by_value[value].name rescue nil
     end
 
     def coerce_literal(ast)
-
+      if ast[:kind] == :enum
+        values[ast[:value]].value rescue nil
+      end
     end
 
     def to_s
       name
+    end
+
+  private
+
+    def values_by_value
+      @values_by_value ||= begin
+        values.reduce({}) do |memo, pair|
+          name, value = pair
+          memo[value.value] = value
+          memo
+        end
+      end
     end
 
   end
