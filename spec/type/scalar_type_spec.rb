@@ -15,6 +15,10 @@ RSpec.describe GraphQL::GraphQLScalarType do
     GraphQL::GraphQLScalarType.new
   end
 
+  def string
+    GraphQL::GraphQLString
+  end
+
 
   it 'Should convert instance to string' do
     expect(valid_scalar.to_s).to eql(valid_scalar.name)
@@ -37,4 +41,20 @@ RSpec.describe GraphQL::GraphQLScalarType do
     expect(invalid_scalar.valid?).to eql(false)
   end
 
+
+  # String
+  #
+  it 'Should coerce value to string' do
+    expect(string.coerce('abc')).to eql('abc')
+    expect(string.coerce(:abc)).to eql('abc')
+    expect(string.coerce(123)).to eql('123')
+    expect(string.coerce(123.45)).to eql('123.45')
+    expect(string.coerce(true)).to eql('true')
+
+    expect(string.coerce_literal(kind: :string, value: 'abc')).to eql('abc')
+  end
+
+  it 'Should not coerce value to string' do
+    expect(string.coerce_literal(kind: :int, value: 123)).to eql(nil)
+  end
 end

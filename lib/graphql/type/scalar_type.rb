@@ -22,4 +22,19 @@ module GraphQL
 
   end
 
+  # String
+  #
+  GraphQLString = GraphQLScalarType.new do
+    name 'String'
+
+    coerce -> (value) {
+      value.to_s
+    }
+
+    coerce_literal -> (ast) {
+      ast[:kind] == :string ? ast[:value] : nil
+    }
+  end
+
+
 end
