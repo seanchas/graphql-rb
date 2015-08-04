@@ -30,6 +30,11 @@ module GraphQL
         attributes.each { |name| send(:"validate_#{name}") }
       end
 
+      def coerce(value)
+        puts "COERCE #{@coerce.inspect}"
+        @coerce.nil? ? value : @coerce.call(value)
+      end
+
       private
 
       def add_error(name, value)
@@ -42,34 +47,34 @@ module GraphQL
       end
 
       def validate_name
-        add_error(:name, "missing") if name.nil?
-        add_error(:name, "should be a String, got #{name}") unless name.is_a?(String)
-        add_error(:name, "cannot be empty") if name.is_a?(String) && name.size == 0
+        add_error(:name, "missing") if @name.nil?
+        add_error(:name, "should be a String or Symbold, got #{name}") unless @name.is_a?(String) or @name.is_a?(Symbol)
+        add_error(:name, "cannot be empty") if @name.is_a?(String) && name.size == 0
       end
 
       def validate_type
-        add_error(:type, "missing") if type.nil?
+        add_error(:type, "missing") if @type.nil?
 
         if type.instance_of?(Array)
-          add_type_error unless type.size == 1
-          add_type_error unless type.first.is_a?(Class)
+          add_type_error unless @type.size == 1
+          add_type_error unless @type.first.is_a?(Class)
         else
-          add_type_error unless type.is_a?(Class)
+          add_type_error unless @type.is_a?(Class)
         end
       end
 
       def add_type_error
-        add_error(:type, "should be a Class or Array of one Class, got #{type}")
+        add_error(:type, "should be a Class or Array of one Class, got #{@type}")
       end
 
       def validate_coerce
-        return if coerce.nil?
-        add_error(:coerce, "should be a Proc, got #{corce}") unless coerce.is_a?(Proc)
+        return if @coerce.nil?
+        add_error(:coerce, "should be a Proc, got #{@coerce}") unless @coerce.is_a?(Proc)
       end
 
       def validate_description
-        return if description.nil?
-        add_error(:description, "should be a String, got #{description}") unless description.is_a?(String)
+        return if @description.nil?
+        add_error(:description, "should be a String, got #{@description}") unless @description.is_a?(String)
       end
 
       def define_methods
@@ -82,7 +87,7 @@ module GraphQL
             else
               instance_variable_get(instance_variable_name)
             end
-          end
+          end unless methods.include?(:"#{key}")
 
           define_singleton_method(:"#{key}=") do |value|
             instance_variable_set(instance_variable_name, value)
