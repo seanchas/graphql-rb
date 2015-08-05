@@ -2,6 +2,10 @@ module GraphQL
 
   class GraphQLNonNull
 
+    include GraphQLType
+    include GraphQLInputType
+    include GraphQLOutputType
+
     NESTING_ERROR = 'Cannon nest NonNull inside NonNull'
 
     attr_reader :of_type

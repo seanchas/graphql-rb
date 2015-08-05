@@ -2,6 +2,11 @@ module GraphQL
 
   class GraphQLList
 
+    include GraphQLType
+    include GraphQLInputType
+    include GraphQLOutputType
+    include GraphQLNullableType
+
     attr_reader :of_type
 
     def initialize(of_type)

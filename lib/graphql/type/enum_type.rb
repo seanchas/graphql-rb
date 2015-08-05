@@ -46,6 +46,13 @@ module GraphQL
   #
   class GraphQLEnumType < GraphQL::Configuration::Configurable
 
+    include GraphQLType
+    include GraphQLInputType
+    include GraphQLOutputType
+    include GraphQLLeafType
+    include GraphQLNullableType
+    include GraphQLNamedType
+    
     configure_with GraphQLEnumTypeConfiguration
 
     def values
