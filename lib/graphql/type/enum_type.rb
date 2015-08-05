@@ -25,7 +25,7 @@ module GraphQL
 
   # GraphQLEnumValueConfiguration
   #
-  class GraphQLEnumValueConfiguration < GraphQL::Configuration::Base
+  class GraphQLEnumValue < GraphQL::Configuration::Base
     slot :name,                 String, coerce: -> (v) { v.to_s }
     slot :value,                Object, null: true
     slot :description,          String, null: true
@@ -37,8 +37,8 @@ module GraphQL
   #
   class GraphQLEnumTypeConfiguration < GraphQL::Configuration::Base
     slot :name,         String
-    slot :values,       [GraphQLEnumValueConfiguration],  singular: :value
-    slot :description,  String,                           null: true
+    slot :values,       [GraphQLEnumValue], singular: :value
+    slot :description,  String,             null: true
   end
 
 
@@ -60,10 +60,9 @@ module GraphQL
       values_by_value[value].name rescue nil
     end
 
+
     def coerce_literal(ast)
-      if ast[:kind] == :enum
-        values[ast[:value]].value rescue nil
-      end
+      ast[:kind] == :enum ? (values[ast[:value]].value rescue nil) : nil
     end
 
 

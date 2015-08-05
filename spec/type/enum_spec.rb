@@ -2,10 +2,6 @@ require 'graphql'
 
 RSpec.describe GraphQL::GraphQLEnumType do
 
-  def value(*args, &block)
-    GraphQL::GraphQLEnumValueConfiguration
-  end
-
   def type(*args, &block)
     GraphQL::GraphQLEnumType.new(*args, &block)
   end
