@@ -3,7 +3,7 @@ module GraphQL
   # GraphQLArgument
   #
   class GraphQLField < GraphQL::Configuration::Base
-    slot :name,                 String
+    slot :name,                 String, coerce: -> (v) { v.to_s }
     slot :type,                 Object # TODO: GraphQLOutputType
     slot :args,                 [ -> { GraphQLArgument } ]
     slot :resolve,              Proc
