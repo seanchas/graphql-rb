@@ -18,7 +18,11 @@ module GraphQL
       end
 
       def effective_type
-        @effective_type ||= list? ? type.first : type
+        @effective_type ||= begin
+          t = list? ? type.first : type
+          t = t.call if t.is_a?(Proc)
+          t
+        end
       end
 
       def errors
@@ -56,9 +60,9 @@ module GraphQL
 
         if type.instance_of?(Array)
           add_type_error unless @type.size == 1
-          add_type_error unless @type.first.is_a?(Class)
+          add_type_error unless @type.first.is_a?(Class) || @type.first.is_a?(Proc)
         else
-          add_type_error unless @type.is_a?(Class)
+          add_type_error unless @type.is_a?(Class) || @type.is_a?(Proc)
         end
       end
 
@@ -81,6 +85,12 @@ module GraphQL
         add_error(:null, "should be true or false, got #{@null}") unless !!@null == @null
       end
 
+      def validate_singular
+        @singular = :"#{@name}_item" if list? && @singular.nil?
+        return if @singular.nil?
+        add_error(:singular, "should be a String or Symbold, got #{@singular}") unless @singular.is_a?(String) or @singular.is_a?(Symbol)
+      end
+
       def define_methods
         attributes.each do |key|
           instance_variable_name  = :"@#{key}"
@@ -101,7 +111,7 @@ module GraphQL
       end
 
       def attributes
-        @attributes ||= [:name, :type, :coerce, :description, :null]
+        @attributes ||= [:name, :type, :coerce, :description, :null, :singular]
       end
 
     end

@@ -24,8 +24,7 @@ module GraphQL
         if args.size == 1 && !block_given && args.first.is_a?(Base)
           super args.first
         else
-          configuration = self.configuration.new(*args)
-          configuration.instance_eval(&block)
+          configuration = self.configuration.new(*args, &block)
           super(configuration)
         end
       end

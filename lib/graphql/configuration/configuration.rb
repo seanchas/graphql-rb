@@ -5,6 +5,13 @@ module GraphQL
 
     class Base
 
+      def initialize(*args, &block)
+        options = args.last.instance_of?(Hash) ? args.pop : {}
+        slots.each { |key, slot| options[(slot.singular || slot.name).to_sym] = args.shift if args.size > 0 }
+        options.each { |key, value| public_send(key, value) }
+        instance_eval(&block) if block_given?
+      end
+
       def slots
         self.class.slots
       end
@@ -22,33 +29,38 @@ module GraphQL
 
         def coerce(slot, *args, &block)
           if args.size == 1 && !block_given?
-            slot.coerce.nil? ? args.first : slot.coerce.call(args.first)
-          else
-            slot.effective_type.new(*args, &block)
+            value = slot.coerce.nil? ? args.first : slot.coerce.call(args.first)
+            return value if value.is_a?(slot.effective_type)
           end
+          slot.effective_type.new(*args, &block)
         end
 
         private
 
         def define_accessors(slot)
-          instance_variable_name      = :"@#{slot.name}"
-          list_instance_variable_name = :"@#{slot.name}_list"
+          instance_variable_name  = :"@#{slot.name}"
+          reader_name             = :"#{slot.name}"
+          writer_name             = :"#{slot.name}="
 
           if slot.list?
-            define_method(:"#{slot.name}_list") do
-              instance_variable_set(list_instance_variable_name, []) if instance_variable_get(list_instance_variable_name).nil?
-              instance_variable_get(list_instance_variable_name)
+            define_method(reader_name) do
+              instance_variable_set(instance_variable_name, []) if instance_variable_get(instance_variable_name).nil?
+              instance_variable_get(instance_variable_name)
             end
+
+            instance_variable_name  = :"@#{slot.singular}"
+            reader_name             = :"#{slot.singular}"
+            writer_name             = :"#{slot.singular}="
           end
 
-          define_method(:"#{slot.name}=") do |*args, &block|
+          define_method(writer_name) do |*args, &block|
             if args.size > 0 || block_given?
               value = self.class.coerce(slot, *args, &block)
 
               raise RuntimeError.new "Cannot coerce." unless value.is_a?(slot.effective_type)
 
               if slot.list?
-                public_send(:"#{slot.name}_list") << value
+                public_send(:"#{slot.name}") << value
               else
                 instance_variable_set(instance_variable_name, value)
               end
@@ -56,7 +68,7 @@ module GraphQL
             slot.list? ? nil : instance_variable_get(instance_variable_name)
           end
 
-          alias_method :"#{slot.name}", :"#{slot.name}="
+          alias_method reader_name, writer_name
         end
 
       end
