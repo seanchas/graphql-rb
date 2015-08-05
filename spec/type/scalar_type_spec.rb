@@ -48,15 +48,6 @@ RSpec.describe GraphQL::GraphQLScalarType do
     expect { valid_scalar.coerce_literal('ABC') }.to raise_error('Not implemented')
   end
 
-  it 'Should validate' do
-    expect(valid_scalar.valid?).to eql(true)
-  end
-
-  it 'Should not validate' do
-    expect(invalid_scalar.valid?).to eql(false)
-  end
-
-
   # Int
   #
   it 'Should coerce value to int' do

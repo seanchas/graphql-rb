@@ -17,6 +17,10 @@ module GraphQL
         type.is_a?(Array)
       end
 
+      def effective_type
+        @effective_type ||= list? ? type.first : type
+      end
+
       def errors
         @errors ||= {}
       end
@@ -28,11 +32,6 @@ module GraphQL
       def validate
         @errors = {}
         attributes.each { |name| send(:"validate_#{name}") }
-      end
-
-      def coerce(value)
-        puts "COERCE #{@coerce.inspect}"
-        @coerce.nil? ? value : @coerce.call(value)
       end
 
       private
@@ -77,6 +76,11 @@ module GraphQL
         add_error(:description, "should be a String, got #{@description}") unless @description.is_a?(String)
       end
 
+      def validate_null
+        return if @null.nil?
+        add_error(:null, "should be true or false, got #{@null}") unless !!@null == @null
+      end
+
       def define_methods
         attributes.each do |key|
           instance_variable_name  = :"@#{key}"
@@ -97,7 +101,7 @@ module GraphQL
       end
 
       def attributes
-        @attributes ||= [:name, :type, :coerce, :description]
+        @attributes ||= [:name, :type, :coerce, :description, :null]
       end
 
     end

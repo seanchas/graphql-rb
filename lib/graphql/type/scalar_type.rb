@@ -1,13 +1,27 @@
+require 'graphql/configuration'
+
 module GraphQL
+
+
+  # GraphQL Scalar Type Configuration
+  #
+  class GraphQLScalarTypeConfiguration < GraphQL::Configuration::Base
+    slot :name,             String
+    slot :description,      String, null: true
+    slot :coerce,           Proc
+    slot :coerce_literal,   Proc
+  end
 
   # GraphQL Scalar Type
   #
-  class GraphQLScalarType < GraphQLTypeBase
+  class GraphQLScalarType < GraphQL::Configuration::Configurable
 
-    attribute :name,            type: String
-    attribute :description,     type: String, allow_null: true
-    attribute :coerce,          type: Proc
-    attribute :coerce_literal,  type: Proc
+    configure_with GraphQLScalarTypeConfiguration
+
+    def initialize(configuration)
+      super
+      raise RuntimeError.new("Name should present in #{self.class}") if name.nil? || name.size == 0
+    end
 
     def coerce(value)
       @configuration.coerce.call(value)
