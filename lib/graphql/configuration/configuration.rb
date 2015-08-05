@@ -31,7 +31,15 @@ module GraphQL
         private
 
         def define_accessors(slot)
-          instance_variable_name = :"@#{slot.name}"
+          instance_variable_name      = :"@#{slot.name}"
+          list_instance_variable_name = :"@#{slot.name}_list"
+
+          if slot.list?
+            define_method(:"#{slot.name}_list") do
+              instance_variable_set(list_instance_variable_name, []) if instance_variable_get(list_instance_variable_name).nil?
+              instance_variable_get(list_instance_variable_name)
+            end
+          end
 
           define_method(:"#{slot.name}=") do |*args, &block|
             if args.size > 0 || block_given?
@@ -39,9 +47,13 @@ module GraphQL
 
               raise RuntimeError.new "Cannot coerce." unless value.is_a?(slot.effective_type)
 
-              instance_variable_set(instance_variable_name, value)
+              if slot.list?
+                public_send(:"#{slot.name}_list") << value
+              else
+                instance_variable_set(instance_variable_name, value)
+              end
             end
-            instance_variable_get(instance_variable_name)
+            slot.list? ? nil : instance_variable_get(instance_variable_name)
           end
 
           alias_method :"#{slot.name}", :"#{slot.name}="

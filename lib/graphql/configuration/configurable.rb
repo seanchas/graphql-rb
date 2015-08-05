@@ -12,7 +12,7 @@ module GraphQL
 
 
       def method_missing(name, *args, &block)
-        if @configuration.slots.keys.include?(name.to_sym)
+        if @configuration.respond_to?(name)
           @configuration.send(name, *args, &block)
         else
           super
