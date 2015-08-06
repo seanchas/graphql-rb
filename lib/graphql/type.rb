@@ -6,8 +6,15 @@ module GraphQL
   module GraphQLLeafType; end
   module GraphQLCompositeType; end
   module GraphQLAbstractType; end
-  module GraphQLNullableType; end
   module GraphQLNamedType; end
+
+  module GraphQLNullableType
+
+    def !
+      GraphQLNonNull.new(self)
+    end
+
+  end
 
   def named_type(type)
     type = type.of_type while type.is_a?(GraphQLList) || type.is_a?(GraphQLNonNull)

@@ -16,7 +16,7 @@ module StarWars
     description   'A character in the Star Wars Trilogy'
 
     field :id do
-      type        GraphQL::GraphQLNonNull.new(GraphQL::GraphQLString)
+      type        !GraphQL::GraphQLString
       description 'The id of the character'
     end
 
@@ -42,7 +42,7 @@ module StarWars
     name          'Human'
     description   'A humanoid creature in the Star Wars universe'
 
-    field :id, GraphQL::GraphQLNonNull.new(GraphQL::GraphQLString) do
+    field :id, !GraphQL::GraphQLString do
       description 'The id of the human'
     end
 
@@ -63,7 +63,7 @@ module StarWars
     name          'Droid'
     description   'A mechanical creature in the Star Wars universe'
 
-    field :id, GraphQL::GraphQLNonNull.new(GraphQL::GraphQLString) do
+    field :id, !GraphQL::GraphQLString do
       description 'The id of the droid'
     end
 
@@ -95,7 +95,7 @@ module StarWars
     end
 
     field :human, HumanType do
-      arg :id, GraphQL::GraphQLNonNull.new(GraphQL::GraphQLString), description: 'Id of the human'
+      arg :id, !GraphQL::GraphQLString, description: 'Id of the human'
 
       resolve lambda { |root, params, *args|
         raise "Not implemented. Yet."
@@ -103,7 +103,7 @@ module StarWars
     end
 
     field :driod, DroidType do
-      arg :id, GraphQL::GraphQLNonNull.new(GraphQL::GraphQLString), description: 'Id of the droid'
+      arg :id, !GraphQL::GraphQLString, description: 'Id of the droid'
 
       resolve lambda { |root, params, *args|
         raise "Not implemented. Yet."
