@@ -20,11 +20,16 @@ module GraphQL
 
     def initialize(configuration)
       super
-      @impletentations = []
+      @implementations = []
+    end
+
+    def implement!(type)
+      raise RuntimeError.new("{self} can implement instances of GraphQLType. Got #{type.class}.") unless type.is_a?(GraphQLType)
+      @implementations << type unless possible_type?(type)
     end
 
     def fields
-      {}
+      @fields ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name] = field ; memo}
     end
 
     def possible_types
@@ -32,10 +37,11 @@ module GraphQL
     end
 
     def possible_type?(type)
+      possible_types.include?(type)
     end
 
     def resolve_type(type)
-      @configuration.resolve_type.nil? ? nil : @configuration.resolve_type.call(type)
+      @configuration.resolve_type.nil? ? type_of(type) : @configuration.resolve_type.call(type)
     end
 
     def to_s

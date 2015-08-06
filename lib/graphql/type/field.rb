@@ -17,9 +17,11 @@ module GraphQL
     configure_with GraphQLFieldConfiguration
 
     def type
-      @type ||= begin
-        @configuration.type.is_a?(Proc) ? @configuration.type.call : @configuration.type
-      end
+      @type ||= @configuration.type.is_a?(Proc) ? @configuration.type.call : @configuration.type
+    end
+
+    def args
+      @args ||= @configuration.args
     end
   end
 

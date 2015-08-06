@@ -5,8 +5,15 @@ module GraphQL
   module GraphQLOutputType; end
   module GraphQLLeafType; end
   module GraphQLCompositeType; end
-  module GraphQLAbstractType; end
   module GraphQLNamedType; end
+
+  module GraphQLAbstractType
+
+    def type_of(value)
+      raise "Not implemented. Yet."
+    end
+
+  end
 
   module GraphQLNullableType
 
@@ -21,9 +28,9 @@ module GraphQL
   end
 
   TypeMapReducer = lambda do |memo, type|
-    return memo if type.nil? || memo.keys.include?(type.name)
+    return TypeMapReducer.call(memo, type.of_type) if type.is_a?(GraphQLNonNull) || type.is_a?(GraphQLList)
 
-    return reduce(memo, type.of_type) if type.is_a?(GraphQLNonNull) || type.is_a?(GraphQLList)
+    return memo if type.nil? || memo.keys.include?(type.name)
 
     memo[type.name] = type
 
@@ -38,7 +45,7 @@ module GraphQL
     if type.is_a?(GraphQLObjectType) || type.is_a?(GraphQLInterfaceType)
       type.fields.each do |name, field|
         memo = field.args.map(&:type).reduce(memo, &TypeMapReducer)
-        memo = TypeMapReducer(memo, field.type)
+        memo = TypeMapReducer.call(memo, field.type)
       end
     end
 

@@ -19,8 +19,14 @@ module GraphQL
 
     configure_with GraphQLObjectTypeConfiguration
 
+    def initialize(configuration)
+      super
+      interfaces.each { |interface| interface.implement!(self) }
+    end
+
+
     def fields
-      {}
+      @fields ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name] = field ; memo}
     end
 
     def interfaces
