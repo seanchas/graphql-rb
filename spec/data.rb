@@ -26,12 +26,12 @@ module StarWars
     end
 
     field :friends do
-      type        -> { GraphQL::GraphQLList.new(CharacterInterface) }
+      type        -> { +CharacterInterface }
       description 'The friends of the character, or an empty list if they have none'
     end
 
     field :appears_in do
-      type        GraphQL::GraphQLList.new(EpisodeEnum)
+      type        +EpisodeEnum
       description 'Which movies they appear in'
     end
 
@@ -48,11 +48,11 @@ module StarWars
 
     field :name, GraphQL::GraphQLString, description: 'The name of the human'
 
-    field :friends, GraphQL::GraphQLList.new(CharacterInterface) do
+    field :friends, +CharacterInterface do
       description 'The friends of the human, or an empty list if they have none'
     end
 
-    field :appears_in, GraphQL::GraphQLList.new(EpisodeEnum), description: 'Which movies they appear in'
+    field :appears_in, +EpisodeEnum, description: 'Which movies they appear in'
 
     field :home_planet, GraphQL::GraphQLString, description: 'The home planet of the human, or null if unknown'
 
@@ -69,11 +69,11 @@ module StarWars
 
     field :name, GraphQL::GraphQLString, description: 'The name of the droid'
 
-    field :friends, GraphQL::GraphQLList.new(CharacterInterface) do
+    field :friends, +CharacterInterface do
       description 'The friends of the droid, or an empty list if they have none'
     end
 
-    field :appears_in, GraphQL::GraphQLList.new(EpisodeEnum), description: 'Which movies they appear in'
+    field :appears_in, +EpisodeEnum, description: 'Which movies they appear in'
 
     field :primary_function, GraphQL::GraphQLString, description: 'The primary function of the droid'
 

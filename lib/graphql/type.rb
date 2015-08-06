@@ -1,11 +1,25 @@
 module GraphQL
 
-  module GraphQLType; end
-  module GraphQLInputType; end
-  module GraphQLOutputType; end
-  module GraphQLLeafType; end
-  module GraphQLCompositeType; end
-  module GraphQLNamedType; end
+  module GraphQLType
+    def +@
+      GraphQLList.new(self)
+    end
+  end
+
+  module GraphQLInputType
+  end
+
+  module GraphQLOutputType
+  end
+
+  module GraphQLLeafType
+  end
+
+  module GraphQLCompositeType
+  end
+
+  module GraphQLNamedType
+  end
 
   module GraphQLAbstractType
 
@@ -65,3 +79,4 @@ require_relative 'type/argument'
 require_relative 'type/list'
 require_relative 'type/non_null'
 require_relative 'type/schema'
+require_relative 'introspection/schema'
