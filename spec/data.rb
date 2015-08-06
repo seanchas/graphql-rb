@@ -111,4 +111,11 @@ module StarWars
     end
   end
 
+
+  Schema = GraphQL::GraphQLSchema.new do
+
+    query QueryType
+
+  end
+
 end

@@ -20,6 +20,7 @@ module GraphQL
     configure_with GraphQLObjectTypeConfiguration
 
     def fields
+      {}
     end
 
     def interfaces

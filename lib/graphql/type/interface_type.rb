@@ -24,6 +24,7 @@ module GraphQL
     end
 
     def fields
+      {}
     end
 
     def possible_types
