@@ -21,7 +21,7 @@ module GraphQL
 
     def type_map
       # TODO: Add Introspection Schema
-      @type_map ||= [query_type, mutation_type].reduce({}, &TypeMapReducer)
+      @type_map ||= [query_type, mutation_type, Introspection::Schema__].reduce({}, &TypeMapReducer)
     end
 
     def type(name)
