@@ -23,11 +23,11 @@ module GraphQL
     end
 
     def possible_type?(type)
-
+      @configuration.types.include?(type)
     end
 
     def resolve_type(type)
-      @configuration.resolve_type.nil? ? nil : @configuration.resolve_type.call(type)
+      @configuration.resolve_type.nil? ? type_of(type) : @configuration.resolve_type.call(type)
     end
 
     def to_s
