@@ -46,7 +46,7 @@ module GraphQL
 
       def validate!
         validate
-        raise StandardError.new("#{self.class.name} validation error: #{errors.keys}") unless valid?
+        raise StandardError.new("#{self.class.name} validation error: #{errors.keys} #{errors.inspect}") unless valid?
       end
 
       def validate_name
@@ -60,14 +60,18 @@ module GraphQL
 
         if type.instance_of?(Array)
           add_type_error unless @type.size == 1
-          add_type_error unless @type.first.is_a?(Class) || @type.first.is_a?(Proc)
+          add_type_error unless type_valid?(@type.first)
         else
-          add_type_error unless @type.is_a?(Class) || @type.is_a?(Proc)
+          add_type_error unless type_valid?(@type)
         end
       end
 
+      def type_valid?(type)
+        type.is_a?(Class) || type.is_a?(Module) || type.is_a?(Proc)
+      end
+
       def add_type_error
-        add_error(:type, "should be a Class or Array of one Class, got #{@type}")
+        add_error(:type, "should be a Class, Module or Array of one Class or Module, got #{@type}")
       end
 
       def validate_coerce

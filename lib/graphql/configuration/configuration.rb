@@ -29,8 +29,11 @@ module GraphQL
 
         def coerce(slot, *args, &block)
           if args.size == 1 && !block_given?
-            value = slot.coerce.nil? ? args.first : slot.coerce.call(args.first)
+            value = args.first
             return value if value.is_a?(slot.effective_type)
+            value = slot.coerce.nil? ? value : slot.coerce.call(value)
+            return value if value.is_a?(slot.effective_type)
+            return value if value.is_a?(Proc)
           end
           slot.effective_type.new(*args, &block)
         end
@@ -57,7 +60,7 @@ module GraphQL
             if args.size > 0 || block_given?
               value = self.class.coerce(slot, *args, &block)
 
-              raise RuntimeError.new "Cannot coerce." unless value.is_a?(slot.effective_type)
+              raise RuntimeError.new "Cannot coerce." unless value.is_a?(slot.effective_type) || value.is_a?(Proc)
 
               if slot.list?
                 public_send(:"#{slot.name}") << value
