@@ -5,7 +5,7 @@ module GraphQL
 
     class Parser < Parslet::Parser
 
-      rule(:root) { document }
+      rule(:root) { document.as(:document) }
 
       # Source Character
       #
@@ -38,11 +38,18 @@ module GraphQL
 
       rule(:punctuator) { match('[!$():=@[]{|}]') | str('...') }
 
-      rule(:name) { (match('[_a-zA-Z]') >> match('[_a-zA-Z0-9]').repeat).as(:name) }
+      rule(:name) do
+        (match('[_a-zA-Z]') >> match('[_a-zA-Z0-9]').repeat).as(:name)
+      end
 
-      rule(:int_value) { integer_part.as(:int_value) }
+      rule(:int_value) do
+        integer_part.as(:int_value)
+      end
 
-      rule(:integer_part) { negative_sign.maybe >> str('0') | negative_sign.maybe >> non_zero_digit >> digit.repeat }
+      rule(:integer_part) do
+        negative_sign.maybe >> str('0')                       |
+        negative_sign.maybe >> non_zero_digit >> digit.repeat
+      end
 
       rule(:negative_sign) { str('-') }
 
@@ -50,7 +57,13 @@ module GraphQL
 
       rule(:non_zero_digit) { str('0').absent? >> digit }
 
-      rule(:float_value) { (integer_part >> fractional_part >> exponent_part | integer_part >> fractional_part | integer_part >> exponent_part).as(:float_value) }
+      rule(:float_value) do
+        (
+          integer_part >> fractional_part >> exponent_part  |
+          integer_part >> fractional_part                   |
+          integer_part >> exponent_part
+        ).as(:float_value)
+      end
 
       rule(:fractional_part) { str('.') >> digit.repeat(1) }
 
@@ -60,9 +73,15 @@ module GraphQL
 
       rule(:sign) { match('-+') }
 
-      rule(:string_value) { (str('""') |  str('"') >> string_character.repeat(1).as(:value) >> str('"')).as(:string_value) }
+      rule(:string_value) do
+        str('"') >> string_character.repeat.as(:string_value) >> str('"')
+      end
 
-      rule(:string_character) { (str('"') | str('\\') | line_terminator).absent? >> source_character | str('\\') >> escaped_unicode | str('\\') >> escaped_character  }
+      rule(:string_character) do
+        (str('"') | str('\\') | line_terminator).absent? >> source_character  |
+        str('\\') >> escaped_unicode                                          |
+        str('\\') >> escaped_character
+      end
 
       rule(:escaped_unicode) { str('u') >> match('[a-fA-F0-9]').repeat(4) }
 
@@ -71,75 +90,269 @@ module GraphQL
       # Query Document
       #
 
-      rule(:document) { ignored? >> definition.repeat(1).as(:document_definitions) >> ignored? }
+      rule(:document) do
+        ignored? >> (
+          definition.repeat(1)
+        ).as(:definitions) >> ignored?
+      end
 
-      rule(:definition) { operation_definition | fragment_definition }
+      rule(:definition) do
+        ignored? >> (
+          operation_definition |
+          fragment_definition
+        ).as(:definition) >> ignored?
+      end
 
-      rule(:operation_definition) { selection_set | operation_type.as(:type) >> ignored! >> name.as(:name) >> variable_definitions.maybe.as(:variable_definitions) >> directives.maybe.as(:directives) >> selection_set.as(:selection_set) }
+      rule(:operation_definition) do
+         ignored? >> (
+           selection_set                |
+           operation_type               >>
+           name                         >>
+           variable_definitions.maybe   >>
+           directives.maybe             >>
+           selection_set
+         ).as(:operation_definition) >> ignored?
+      end
 
-      rule(:operation_type) { str('query') | str('mutation') }
+      rule(:operation_type) do
+        ignored? >> (
+          str('query')    |
+          str('mutation')
+        ).as(:operation_type) >> ignored?
+      end
 
-      rule(:selection_set) { ignored? >> str('{') >> selection.repeat(1).as(:selections) >> str('}') >> ignored? }
+      rule(:selection_set) do
+        ignored? >> (
+          str('{') >> selection.repeat(1).as(:selection_set) >> str('}')
+        ) >> ignored?
+      end
 
-      rule(:selection) { ignored? >> field >> ignored? | fragment_spread | inline_fragment }
+      rule(:selection) do
+        ignored? >> (
+          field | fragment_spread | inline_fragment
+        ).as(:selection) >> ignored?
+      end
 
-      rule(:field) { field_alias.maybe.as(:alias) >> name.as(:name) >> arguments.maybe.as(:arguments) >> directives.maybe.as(:directives) >> selection_set.maybe.as(:selection_set) }
+      rule(:field) do
+        ignored? >> (
+          field_alias.maybe     >>
+          name                  >>
+          arguments.maybe       >>
+          directives.maybe      >>
+          selection_set.maybe
+        ).as(:field) >> ignored?
+      end
 
-      rule(:field_alias) { name >> str(':') >> ignored? }
+      rule(:field_alias) do
+        ignored? >> name.as(:field_alias) >> str(':') >> ignored?
+      end
 
-      rule(:arguments) { str('(') >> argument.repeat(1) >> str(')') }
+      rule(:arguments) do
+        ignored? >> (
+          str('(') >> argument.repeat(1).as(:arguments) >> str(')')
+        ) >> ignored?
+      end
 
-      rule(:argument) { ignored? >> name.as(:name) >> str(':') >> ignored? >> value.as(:value) >> ignored? }
+      rule(:argument) do
+        ignored? >> (
+          name        >>
+          str(':')    >>
+          value
+        ).as(:argument) >> ignored?
+      end
 
-      rule(:fragment_spread) { str('...') >> fragment_name >> directives.maybe }
+      rule(:fragment_spread) do
+        ignored? >> (
+          str('...')        >>
+          fragment_name     >>
+          directives.maybe
+        ).as(:fragment_spread) >> ignored?
+      end
 
-      rule(:inline_fragment) { str('...') >> str('on') >> type_condition >> directives.maybe >> selection_set }
+      rule(:inline_fragment) do
+        ignored? >> (
+          str('...')        >>
+          ignored?          >>
+          str('on')         >>
+          ignored?          >>
+          type_condition    >>
+          directives.maybe  >>
+          selection_set
+        ).as(:inline_fragment) >> ignored?
+      end
 
-      rule(:fragment_definition) { str('fragment') >> fragment_name >> str('on') >> type_condition >> directives.maybe >> selection_set }
+      rule(:fragment_definition) do
+        ignored? >> (
+          str('fragment')   >>
+          fragment_name     >>
+          str('on')         >>
+          type_condition    >>
+          directives.maybe  >>
+          selection_set
+        ).as(:fragment_definition) >> ignored?
+      end
 
-      rule(:fragment_name) { str('on').absent? >> name }
+      rule(:fragment_name) do
+        ignored? >> (
+          str('on').absent? >> name.as(:fragment_name)
+        ) >> ignored?
+      end
 
-      rule(:type_condition) { named_type }
+      rule(:type_condition) do
+        ignored? >>
+        named_type.as(:type_condition) >> ignored?
+      end
 
-      rule(:value) { variable | float_value | int_value | string_value | boolean_value | enum_value | list_value | object_value }
+      rule(:value) do
+        ignored? >> (
+          variable        |
+          float_value     |
+          int_value       |
+          string_value    |
+          boolean_value   |
+          enum_value      |
+          list_value      |
+          object_value
+        ).as(:value) >> ignored?
+      end
 
-      rule(:value_const) { float_value | int_value | string_value | boolean_value | enum_value | list_value_const | object_value_const }
+      rule(:value_const) do
+        ignored? >> (
+          float_value         |
+          int_value           |
+          string_value        |
+          boolean_value       |
+          enum_value          |
+          list_value_const    |
+          object_value_const
+        ).as(:value) >> ignored?
+      end
 
-      rule(:boolean_value) { str('true') | str('false') }
+      rule(:boolean_value) do
+        ignored? >> (
+          str('true')   |
+          str('false')
+        ).as(:boolean_value) >> ignored?
+      end
 
-      rule(:enum_value) { (str('true') | str('false') | str('null')).absent? >> name }
+      rule(:enum_value) do
+        ignored? >> (
+          (
+            str('true')   |
+            str('false')  |
+            str('null')
+          ).absent? >> name
+        ).as(:enum_value) >> ignored?
+      end
 
-      rule(:list_value) { str('[') >> str(']') | str('[') >> value.repeat(1) >> str(']') }
+      rule(:list_value) do
+        ignored? >> (
+          str('[')      >>
+          value.repeat  >>
+          str(']')
+        ).as(:list_value) >> ignored?
+      end
 
-      rule(:list_value_const) { str('[') >> str(']') | str('[') >> value_const.repeat(1) >> str(']') }
+      rule(:list_value_const) do
+        ignored? >> (
+          str('[')            >>
+          value_const.repeat  >>
+          str(']')
+        ).as(:list_value) >> ignored?
+      end
 
-      rule(:object_value) { str('{') >> str('}') | str('{') >> object_field.repeat(1) >> str('}') }
+      rule(:object_value) do
+        ignored? >> (
+          str('{')              >>
+          object_field.repeat   >>
+          str('}')
+        ).as(:object_value) >> ignored?
+      end
 
-      rule(:object_value_const) { str('{') >> str('}') | str('{') >> object_field_const.repeat(1) >> str('}') }
+      rule(:object_value_const) do
+        ignored? >> (
+          str('{')                    >>
+          object_field_const.repeat   >>
+          str('}')
+        ).as(:object_value) >> ignored?
+      end
 
-      rule(:object_field) { name >> str(':') >> value }
+      rule(:object_field) do
+        ignored? >> (
+          name      >>
+          str(':')  >>
+          value
+        ).as(:object_field) >> ignored?
+       end
 
-      rule(:object_field_const) { name >> str(':') >> value_const }
+      rule(:object_field_const) do
+        ignored? >> (
+          name        >>
+          str(':')    >>
+          value_const
+        ).as(:object_field) >> ignored?
+      end
 
-      rule(:variable_definitions) { str('(') >> variable_definition.repeat(1) >> str(')') }
+      rule(:variable_definitions) do
+        ignored? >> (
+          str('(')                        >>
+          variable_definition.repeat(1)   >>
+          str(')')
+        ).as(:variable_definitions) >> ignored?
+      end
 
-      rule(:variable_definition) { variable >> str(':') >> ignored? >> type.as(:type) >> default_value.maybe.as(:default_value) }
+      rule(:variable_definition) do
+        ignored? >> (
+          variable            >>
+          str(':')            >>
+          type                >>
+          default_value.maybe
+        ).as(:variable_definition) >> ignored?
+      end
 
-      rule(:variable) { (ignored? >> str('$') >> name.as(:name) >> ignored?).as(:variable) }
+      rule(:variable) do
+        ignored? >> (
+          str('$') >> name
+        ).as(:variable) >> ignored?
+      end
 
-      rule(:default_value) { ignored? >> str('=') >> ignored? >> value_const >> ignored? }
+      rule(:default_value) do
+        ignored? >> (
+          str('=') >> value_const
+        ).as(:default_value) >> ignored?
+      end
 
-      rule(:type) { non_null_type | list_type | named_type }
+      rule(:type) do
+        ignored? >> (
+          non_null_type | list_type | named_type
+        ).as(:type) >> ignored?
+      end
 
-      rule(:named_type) { name }
+      rule(:named_type) do
+        ignored? >> name.as(:named_type) >> ignored?
+      end
 
-      rule(:list_type) { str('[') >> type >> str(']') }
+      rule(:list_type) do
+        ignored? >> (
+          str('[') >> type >> str(']')
+        ).as(:list_type) >> ignored?
+      end
 
-      rule(:non_null_type) { list_type >> str('!') | named_type >> str('!') }
+      rule(:non_null_type) do
+        ignored? >> (
+          list_type >> str('!') | named_type >> str('!')
+        ).as(:non_null_type) >> ignored?
+      end
 
-      rule(:directives) { directive.repeat(1) }
+      rule(:directives) do
+        ignored? >> directive.repeat(1).as(:directives) >> ignored?
+      end
 
-      rule(:directive) { str('@') >> name >> arguments.maybe }
+      rule(:directive) do
+        ignored? >> (
+          str('@') >> name.as(:name) >> arguments.maybe.as(:arguments)
+        ).as(:directive) >> ignored?
+      end
 
     end
 
