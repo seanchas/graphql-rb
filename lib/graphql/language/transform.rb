@@ -11,8 +11,8 @@ module GraphQL
         definitions.each do |definition|
           case definition
           when SelectionSet
-            operations << OperationDefinition.new('query', '', [], [], definition)
-          when OperationDefinition
+            operations << Operation.new('query', '', [], [], definition)
+          when Operation
             operations << definition
           when FragmentDefinition
             fragments << definition
@@ -21,10 +21,14 @@ module GraphQL
       end
     end
 
-    SelectionSet        = Struct.new("SelectionSet", :selections)
-    OperationDefinition = Struct.new("OperationDefinition", :type, :name, :variables, :directives, :selection_set)
     FragmentDefinition  = Struct.new("FragmentDefinition")
-    Field               = Struct.new("Field", :alias, :name, :arguments, :directives, :selection_set)
+    Field               = Struct.new("Field", :alias, :name, :arguments, :directives, :selection_set) do
+
+      def key
+        @key ||= self.alias.nil? || self.alias.empty? ? name : self.alias
+      end
+
+    end
 
     class Transform < Parslet::Transform
 
@@ -50,7 +54,7 @@ module GraphQL
         variable_definitions:   subtree(:c),
         directives:             subtree(:d),
         selection_set:          subtree(:e)
-      ) { OperationDefinition.new(a.to_s, b, c || [], d || [], e || []) }
+      ) { Operation.new(a.to_sym, b, c || [], d || [], e || []) }
 
       # Field
       #

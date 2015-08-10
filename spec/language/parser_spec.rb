@@ -5,10 +5,11 @@ RSpec.describe GraphQL::Language do
 
   def query
     %Q(
-      query getViewer {
-        Viewer {
-          id: uuid
-          name
+      query getUser($id: String!, $date: String!) {
+        User(id: $id) {
+
+          feed_insights(date: $date, limit: 5, offset: 10)
+
         }
       }
     )

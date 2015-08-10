@@ -1,5 +1,7 @@
 require_relative 'language/parser'
 require_relative 'language/transform'
+require_relative 'language/operation'
+require_relative 'language/selection_set'
 
 module GraphQL
   module Language

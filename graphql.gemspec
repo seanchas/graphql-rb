@@ -22,4 +22,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'awesome_print'
 
   s.add_dependency 'parslet'
+  s.add_dependency 'celluloid'
 end

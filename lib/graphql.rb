@@ -1,4 +1,6 @@
 require 'graphql/configuration'
-require 'graphql/type.rb'
+require 'graphql/type'
 require 'graphql/language'
-require 'graphql/version.rb'
+require 'graphql/execution/execution'
+require 'graphql/version'
+require 'graphql/errors/error'
