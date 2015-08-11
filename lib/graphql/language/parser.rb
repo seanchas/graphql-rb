@@ -91,7 +91,7 @@ module GraphQL
       #
 
       rule(:document) do
-        ignored? >> definition.repeat(1).as(:definitions) >> ignored?
+        ignored? >> definition.repeat(1).as(:document) >> ignored?
       end
 
       rule(:definition) do
@@ -114,15 +114,11 @@ module GraphQL
       end
 
       rule(:selection_set) do
-        ignored? >> (
-          str('{') >> selection.repeat(1).as(:selection_set) >> str('}')
-        ) >> ignored?
+        ignored? >> (str('{') >> selection.repeat(1).as(:selections) >> str('}')).as(:selection_set) >> ignored?
       end
 
       rule(:selection) do
-        ignored? >> (
-          field | fragment_spread | inline_fragment
-        ).as(:selection) >> ignored?
+        ignored? >> (field | fragment_spread | inline_fragment) >> ignored?
       end
 
       rule(:field) do
@@ -155,21 +151,21 @@ module GraphQL
 
       rule(:fragment_spread) do
         ignored? >> (
-          str('...')        >>
-          fragment_name     >>
-          directives.maybe
+          str('...')                        >>
+          fragment_name.as(:name)           >>
+          directives.maybe.as(:directives)
         ).as(:fragment_spread) >> ignored?
       end
 
       rule(:inline_fragment) do
         ignored? >> (
-          str('...')        >>
-          ignored?          >>
-          str('on')         >>
-          ignored?          >>
-          type_condition    >>
-          directives.maybe  >>
-          selection_set
+          str('...')                          >>
+          ignored?                            >>
+          str('on')                           >>
+          ignored?                            >>
+          type_condition.as(:type_condition)  >>
+          directives.maybe.as(:directives)    >>
+          selection_set.as(:selection_set)
         ).as(:inline_fragment) >> ignored?
       end
 
@@ -185,27 +181,26 @@ module GraphQL
       end
 
       rule(:fragment_name) do
-        ignored? >> (
-          str('on').absent? >> name.as(:name)
-        ) >> ignored?
+        ignored? >> (str('on') >> ignored).absent? >> name.as(:name) >> ignored?
       end
 
       rule(:type_condition) do
-        ignored? >>
-        named_type.as(:type_condition) >> ignored?
+        ignored? >> named_type >> ignored?
       end
 
       rule(:value) do
         ignored? >> (
-          variable        |
-          float_value     |
-          int_value       |
-          string_value    |
-          boolean_value   |
-          enum_value      |
-          list_value      |
-          object_value
-        ).as(:value) >> ignored?
+          variable          |
+          (
+            float_value     |
+            int_value       |
+            string_value    |
+            boolean_value   |
+            enum_value      |
+            list_value      |
+            object_value
+          ).as(:value)
+        ) >> ignored?
       end
 
       rule(:value_const) do
@@ -286,19 +281,15 @@ module GraphQL
       end
 
       rule(:variable_definitions) do
-        ignored? >> (
-          str('(')                        >>
-          variable_definition.repeat(1)   >>
-          str(')')
-        ).as(:variable_definitions) >> ignored?
+        ignored? >> str('(') >> variable_definition.repeat(1) >> str(')') >> ignored?
       end
 
       rule(:variable_definition) do
         ignored? >> (
-          variable            >>
-          str(':')            >>
-          type                >>
-          default_value.maybe
+          variable.as(:variable)                  >>
+          str(':')                                >>
+          type.as(:type)                          >>
+          default_value.maybe.as(:default_value)
         ).as(:variable_definition) >> ignored?
       end
 
@@ -309,19 +300,15 @@ module GraphQL
       end
 
       rule(:default_value) do
-        ignored? >> (
-          str('=') >> value_const
-        ).as(:default_value) >> ignored?
+        ignored? >> str('=') >> value_const >> ignored?
       end
 
       rule(:type) do
-        ignored? >> (
-          non_null_type | list_type | named_type
-        ).as(:type) >> ignored?
+        ignored? >> (non_null_type | list_type | named_type) >> ignored?
       end
 
       rule(:named_type) do
-        ignored? >> name.as(:named_type) >> ignored?
+        ignored? >> name >> ignored?
       end
 
       rule(:list_type) do
