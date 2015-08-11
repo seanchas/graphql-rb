@@ -6,7 +6,7 @@ RSpec.describe GraphQL::Language do
   def q01
     %Q(
       {
-        me
+        me(at: { a: $value, b: 2, c: 3 }, for: [1, 2, $value])
       }
     )
   end
@@ -68,7 +68,7 @@ RSpec.describe GraphQL::Language do
 
   it "Should parse query" do
     begin
-      puts GraphQL::Language.parse(q04).inspect
+      puts GraphQL::Language.parse(q01).inspect
     rescue Parslet::ParseFailed => failure
       puts failure.cause.ascii_tree
     end

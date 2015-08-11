@@ -235,7 +235,7 @@ module GraphQL
       rule(:list_value) do
         ignored? >> (
           str('[')      >>
-          value.repeat  >>
+          value.repeat(1)  >>
           str(']')
         ).as(:list_value) >> ignored?
       end
@@ -243,7 +243,7 @@ module GraphQL
       rule(:list_value_const) do
         ignored? >> (
           str('[')            >>
-          value_const.repeat  >>
+          value_const.repeat(1)  >>
           str(']')
         ).as(:list_value) >> ignored?
       end
@@ -251,7 +251,7 @@ module GraphQL
       rule(:object_value) do
         ignored? >> (
           str('{')              >>
-          object_field.repeat   >>
+          object_field.repeat(1)   >>
           str('}')
         ).as(:object_value) >> ignored?
       end
@@ -259,25 +259,17 @@ module GraphQL
       rule(:object_value_const) do
         ignored? >> (
           str('{')                    >>
-          object_field_const.repeat   >>
+          object_field_const.repeat(1)   >>
           str('}')
         ).as(:object_value) >> ignored?
       end
 
       rule(:object_field) do
-        ignored? >> (
-          name      >>
-          str(':')  >>
-          value
-        ).as(:object_field) >> ignored?
+        ignored? >> name.as(:name) >> str(':') >> value.as(:value) >> ignored?
        end
 
       rule(:object_field_const) do
-        ignored? >> (
-          name        >>
-          str(':')    >>
-          value_const
-        ).as(:object_field) >> ignored?
+        ignored? >> name.as(:name) >> str(':') >> value_const.as(:value) >> ignored?
       end
 
       rule(:variable_definitions) do

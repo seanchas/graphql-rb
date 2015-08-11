@@ -87,10 +87,12 @@ module GraphQL
       rule(value: simple(:a)) { a }
       rule(value: subtree(:a)) { Value.new(a[:kind], a[:value]) }
 
-      rule(string_value:  simple(:a)) { { value: a.to_s,      kind: :string   } }
-      rule(int_value:     simple(:a)) { { value: a.to_i,      kind: :int      } }
-      rule(float_value:   simple(:a)) { { value: a.to_f,      kind: :float    } }
-      rule(boolean_value: simple(:a)) { { value: a == 'true', kind: :boolean  } }
+      rule(string_value:    simple(:a)) { { value: a.to_s,      kind: :string   } }
+      rule(int_value:       simple(:a)) { { value: a.to_i,      kind: :int      } }
+      rule(float_value:     simple(:a)) { { value: a.to_f,      kind: :float    } }
+      rule(boolean_value:   simple(:a)) { { value: a == 'true', kind: :boolean  } }
+      rule(list_value:    sequence(:a)) { { value: a,           kind: :list     } }
+      rule(object_value:   subtree(:a)) { { value: a,           kind: :object   } }
 
     end
 
