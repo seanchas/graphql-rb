@@ -1,6 +1,5 @@
+require 'graphql/errors'
 require 'graphql/configuration'
 require 'graphql/type'
 require 'graphql/language'
-require 'graphql/execution/execution'
 require 'graphql/version'
-require 'graphql/errors/error'
