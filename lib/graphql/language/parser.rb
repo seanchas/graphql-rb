@@ -5,7 +5,7 @@ module GraphQL
 
     class Parser < Parslet::Parser
 
-      rule(:root) { document.as(:document) }
+      rule(:root) { document }
 
       # Source Character
       #
@@ -38,14 +38,6 @@ module GraphQL
 
       rule(:punctuator) { match('[!$():=@[]{|}]') | str('...') }
 
-      rule(:name) do
-        (match('[_a-zA-Z]') >> match('[_a-zA-Z0-9]').repeat).as(:name)
-      end
-
-      rule(:int_value) do
-        integer_part.as(:int_value)
-      end
-
       rule(:integer_part) do
         negative_sign.maybe >> str('0')                       |
         negative_sign.maybe >> non_zero_digit >> digit.repeat
@@ -57,14 +49,6 @@ module GraphQL
 
       rule(:non_zero_digit) { str('0').absent? >> digit }
 
-      rule(:float_value) do
-        (
-          integer_part >> fractional_part >> exponent_part  |
-          integer_part >> fractional_part                   |
-          integer_part >> exponent_part
-        ).as(:float_value)
-      end
-
       rule(:fractional_part) { str('.') >> digit.repeat(1) }
 
       rule(:exponent_part) { exponent_indicator >> sign.maybe >> digit.repeat(1) }
@@ -72,10 +56,6 @@ module GraphQL
       rule(:exponent_indicator) { match('[eE]') }
 
       rule(:sign) { match('-+') }
-
-      rule(:string_value) do
-        str('"') >> string_character.repeat.as(:string_value) >> str('"')
-      end
 
       rule(:string_character) do
         (str('"') | str('\\') | line_terminator).absent? >> source_character  |
@@ -87,38 +67,50 @@ module GraphQL
 
       rule(:escaped_character) { match('["\\/bfnrt]') }
 
+      rule(:name) do
+        (match('[_a-zA-Z]') >> match('[_a-zA-Z0-9]').repeat).as(:name)
+      end
+
+      rule(:string_value) do
+        str('"') >> string_character.repeat.as(:string_value) >> str('"')
+      end
+
+      rule(:int_value) do
+        integer_part.as(:int_value)
+      end
+
+      rule(:float_value) do
+        (
+          integer_part >> fractional_part >> exponent_part  |
+          integer_part >> fractional_part                   |
+          integer_part >> exponent_part
+        ).as(:float_value)
+      end
+
       # Query Document
       #
 
       rule(:document) do
-        ignored? >> (
-          definition.repeat(1)
-        ).as(:definitions) >> ignored?
+        ignored? >> definition.repeat(1).as(:definitions) >> ignored?
       end
 
       rule(:definition) do
-        ignored? >> (
-          operation_definition |
-          fragment_definition
-        ).as(:definition) >> ignored?
+        ignored? >> (operation_definition | fragment_definition) >> ignored?
       end
 
       rule(:operation_definition) do
          ignored? >> (
-           selection_set                |
-           operation_type               >>
-           name                         >>
-           variable_definitions.maybe   >>
-           directives.maybe             >>
-           selection_set
+           selection_set.as(:selection_set)                       |
+           operation_type.as(:type)                               >>
+           name.as(:name)                                         >>
+           variable_definitions.maybe.as(:variable_definitions)   >>
+           directives.maybe.as(:directives)                       >>
+           selection_set.as(:selection_set)
          ).as(:operation_definition) >> ignored?
       end
 
       rule(:operation_type) do
-        ignored? >> (
-          str('query')    |
-          str('mutation')
-        ).as(:operation_type) >> ignored?
+        ignored? >> (str('query') | str('mutation')).as(:name) >> ignored?
       end
 
       rule(:selection_set) do
@@ -135,29 +127,29 @@ module GraphQL
 
       rule(:field) do
         ignored? >> (
-          field_alias.maybe     >>
-          name                  >>
-          arguments.maybe       >>
-          directives.maybe      >>
-          selection_set.maybe
+          field_alias.maybe.as(:alias)            >>
+          name.as(:name)                          >>
+          arguments.maybe.as(:arguments)          >>
+          directives.maybe.as(:directives)        >>
+          selection_set.maybe.as(:selection_set)
         ).as(:field) >> ignored?
       end
 
       rule(:field_alias) do
-        ignored? >> name.as(:field_alias) >> str(':') >> ignored?
+        ignored? >> name >> str(':') >> ignored?
       end
 
       rule(:arguments) do
         ignored? >> (
-          str('(') >> argument.repeat(1).as(:arguments) >> str(')')
+          str('(') >> argument.repeat(1) >> str(')')
         ) >> ignored?
       end
 
       rule(:argument) do
         ignored? >> (
-          name        >>
-          str(':')    >>
-          value
+          name.as(:name)    >>
+          str(':')          >>
+          value.as(:value)
         ).as(:argument) >> ignored?
       end
 
@@ -183,18 +175,18 @@ module GraphQL
 
       rule(:fragment_definition) do
         ignored? >> (
-          str('fragment')   >>
-          fragment_name     >>
-          str('on')         >>
-          type_condition    >>
-          directives.maybe  >>
-          selection_set
+          str('fragment')                     >>
+          fragment_name.as(:name)             >>
+          str('on')                           >>
+          type_condition.as(:type_condition)  >>
+          directives.maybe.as(:directives)    >>
+          selection_set.as(:selection_set)
         ).as(:fragment_definition) >> ignored?
       end
 
       rule(:fragment_name) do
         ignored? >> (
-          str('on').absent? >> name.as(:fragment_name)
+          str('on').absent? >> name.as(:name)
         ) >> ignored?
       end
 
@@ -345,7 +337,7 @@ module GraphQL
       end
 
       rule(:directives) do
-        ignored? >> directive.repeat(1).as(:directives) >> ignored?
+        ignored? >> directive.repeat(1) >> ignored?
       end
 
       rule(:directive) do

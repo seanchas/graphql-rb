@@ -34,8 +34,8 @@ RSpec.describe GraphQL::Language do
 
   def q04
     %Q(
-      query withFragments {
-        zuck: user(id: 4) {
+      query withFragments($id: String! = "12345") {
+        zuck: user(id: 4) @include (if: true) {
           friends(first: 10) {
             ... friendFields
           }
@@ -45,8 +45,12 @@ RSpec.describe GraphQL::Language do
         }
       }
 
+      {
+        me
+      }
+
       fragment friendFields on User @include(if: false) {
-        id name
+        id name @skip
         profilePic(size: 50)
       }
     )
