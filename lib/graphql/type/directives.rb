@@ -12,7 +12,7 @@ module GraphQL
   end
 
   GraphQLSkipDirective = GraphQLDirective.new do
-    name        :include
+    name        :skip
     description 'Directs the executor to skip this field or fragment only when the `if` argument is true.'
 
     arg :if, ! GraphQLBoolean, description: 'Skipped when true'

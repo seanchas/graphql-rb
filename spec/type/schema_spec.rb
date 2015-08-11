@@ -1,5 +1,5 @@
 require 'graphql'
-require_relative '../data'
+require_relative '../schema'
 
 RSpec.describe GraphQL::GraphQLSchema do
 

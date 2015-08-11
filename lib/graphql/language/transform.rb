@@ -19,7 +19,7 @@ module GraphQL
 
       rule(operation_definition: {
         selection_set: simple(:a)
-      }) { OperationDefinition.new(nil, nil, nil, nil, a) }
+      }) { OperationDefinition.new('query', nil, nil, nil, a) }
 
 
       rule(fragment_definition: {
