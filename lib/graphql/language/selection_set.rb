@@ -13,10 +13,12 @@ module GraphQL
       #         + context[schema, document]
       #
       def evaluate(context, object_type, object)
-        collect_fields(context, object_type).reduce({}) do |memo, (key, fields)|
+        memo = {}
+
+        collect_fields(context, object_type).each do |key, fields|
           field_type = object_type.field(fields.first.name).type rescue nil
 
-          return memo if field_type.nil?
+          next if field_type.nil?
 
           resolved_object = fields.first.resolve(object_type, object)
 
@@ -26,8 +28,9 @@ module GraphQL
             memo[key] = complete_value(context, field_type, resolved_object, merge_selection_sets(fields))
           end
 
-          memo
         end
+
+        memo
       end
 
       # GraphQL Specification

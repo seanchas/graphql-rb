@@ -26,7 +26,7 @@ module GraphQL
       end
 
       def default_resolve(object)
-        object.public_send(name)
+        object.public_send(name, *arguments)
       end
 
     end
