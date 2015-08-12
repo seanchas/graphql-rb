@@ -7,15 +7,12 @@ module GraphQL
         type == 'mutation' ? execute_serially(schema, root, variables) : execute(context, root, variables)
       end
 
-
       def execute(context, root, variables)
-        puts selection_set.evaluate(context, context[:schema].query_type, root)
+        selection_set.evaluate(context, context[:schema].query_type, root)
       end
-
 
       def execute_serially(schema, root, variables)
       end
-
 
     end
   end

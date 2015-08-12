@@ -13,6 +13,7 @@ RSpec.describe GraphQL::Language do
           name
           friends {
             name
+            home_planet
           }
 
           ... humanFields
@@ -34,7 +35,7 @@ RSpec.describe GraphQL::Language do
 
   it "Should parse query" do
     document = GraphQL::Language.parse(hero_query)
-    document.execute(StarWars::Schema, { episode: '4' })
+    puts document.execute(StarWars::Schema, { episode: '4' })
   end
 
 end

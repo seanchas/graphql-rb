@@ -16,8 +16,7 @@ module GraphQL
       #     ResolveFieldOnObject implementation
       #       objectType, object, firstField = self
       #
-      # TODO: think of way to have defined arguments at this point
-      # TODO: think of way to have error accessor at this point
+      # TODO: think of way to have defined arguments at this point. Validator?
       # TODO: think of some kind of context to pass through as third parameter
       # TODO: think of should or shouldn't we pass self as fourth parameter
       #

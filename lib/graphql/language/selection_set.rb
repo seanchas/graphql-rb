@@ -12,6 +12,8 @@ module GraphQL
       #       objectType, object, - fields
       #         + context[schema, document]
       #
+      # TODO: think of way to have error accessor at this point. Executor?
+      #
       def evaluate(context, object_type, object)
         memo = {}
 
@@ -20,12 +22,24 @@ module GraphQL
 
           next if field_type.nil?
 
-          resolved_object = fields.first.resolve(object_type, object)
+          # NB: can throw
+          begin
+            resolved_object = fields.first.resolve(object_type, object)
+          rescue Exception => e
+            # TODO: Errors
+            puts e
+          end
 
           if resolved_object.nil?
             memo[key] = nil
           else
-            memo[key] = complete_value(context, field_type, resolved_object, merge_selection_sets(fields))
+            # NB: can throw
+            begin
+              memo[key] = complete_value(context, field_type, resolved_object, merge_selection_sets(fields))
+            rescue Exception => e
+              # TODO: Errors
+              puts e
+            end
           end
 
         end

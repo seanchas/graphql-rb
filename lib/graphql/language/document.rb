@@ -5,11 +5,15 @@ module GraphQL
       def execute(schema, root = nil, variables = {}, operation_name = nil)
         raise GraphQLError, "Operation should be defined" if operations.size == 0
         raise GraphQLError, "Operation name should be defined" if operations.size > 1 && operation_name.nil?
-        operations.first.evaluate(schema, root, variables, self)
+        { data: operations.first.evaluate(schema, root, variables, self) }
       end
 
       def operations
         @operations ||= definitions.select { |definition| definition.is_a?(OperationDefinition) }
+      end
+
+      def operation(name)
+        operations.find { |operation| operation.name == name }
       end
 
       def fragments
