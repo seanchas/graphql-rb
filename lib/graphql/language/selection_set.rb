@@ -8,7 +8,11 @@ module GraphQL
         selections.each do |selection|
           case selection
           when Field
+            # TODO: @skip directive
+            # TODO: @include directive
             (result[selection.key] ||= []) << selection
+          # TODO: Fragment Spreade
+          # TODO: Inline Fragment
           end
         end
 

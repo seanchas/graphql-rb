@@ -8,7 +8,10 @@ module GraphQL
 
 
       def execute(schema, root, variables)
-        puts selection_set.fields(schema.query_type)
+        grouped_fields = selection_set.fields(schema.query_type)
+        grouped_fields.each do |key, fields|
+          Field.entry(key, schema.query_type, root, fields, {})
+        end
       end
 
 

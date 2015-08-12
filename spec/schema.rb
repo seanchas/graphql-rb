@@ -1,4 +1,5 @@
 require 'graphql'
+require_relative 'data'
 
 module StarWars
 
@@ -90,7 +91,7 @@ module StarWars
       end
 
       resolve lambda { |root, params, *args|
-        raise "Not implemented. Yet."
+        return StarWars::Data::Artoo
       }
     end
 
