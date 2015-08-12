@@ -36,7 +36,16 @@ module StarWars
       description 'Which movies they appear in'
     end
 
-    resolve_type -> (type) { raise "Not implemented. Yet." }
+    resolve_type -> (object) {
+      case object
+      when StarWars::Data::Human
+        HumanType
+      when StarWars::Data::Droid
+        DroidType
+      else
+        raise "No type found for #{object}"
+      end
+    }
   end
 
   HumanType = GraphQL::GraphQLObjectType.new do
@@ -51,6 +60,10 @@ module StarWars
 
     field :friends, +CharacterInterface do
       description 'The friends of the human, or an empty list if they have none'
+
+      resolve lambda { |root, *args|
+        StarWars::Data.select(root.friends)
+      }
     end
 
     field :appears_in, +EpisodeEnum, description: 'Which movies they appear in'
@@ -72,6 +85,10 @@ module StarWars
 
     field :friends, +CharacterInterface do
       description 'The friends of the droid, or an empty list if they have none'
+
+      resolve lambda { |root, *args|
+        StarWars::Data.select(root.friends)
+      }
     end
 
     field :appears_in, +EpisodeEnum, description: 'Which movies they appear in'
@@ -91,7 +108,7 @@ module StarWars
       end
 
       resolve lambda { |root, params, *args|
-        return StarWars::Data::Artoo
+        return StarWars::Data::Luke
       }
     end
 

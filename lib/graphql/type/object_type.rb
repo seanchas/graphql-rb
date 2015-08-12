@@ -29,6 +29,10 @@ module GraphQL
       @fields ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name] = field ; memo}
     end
 
+    def field(name)
+      fields[name]
+    end
+
     def interfaces
       @configuration.interfaces
     end

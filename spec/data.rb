@@ -13,5 +13,11 @@ module StarWars
     ThreePO = Droid.new('2000', 'C-3PO',            ['1000', '1002', '1003', '2001'],   [4, 5, 6], 'Protocol')
     Artoo   = Droid.new('2001', 'R3-D2',            ['1000', '1002', '1003'],           [4, 5, 6], 'Astromech')
 
+    Characters = [Luke, Vader, Han, Leia, Tarkin, ThreePO, Artoo]
+
+    def self.select(ids)
+      Characters.select { |character| ids.include?(character.id) }
+    end
+
   end
 end

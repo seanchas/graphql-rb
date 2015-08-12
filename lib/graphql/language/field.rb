@@ -2,18 +2,31 @@ module GraphQL
   module Language
     Field = Struct.new('Field', :alias, :name, :arguments, :directives, :selection_set) do
 
-      def self.entry(key, type, object, fields, context)
-        return nil unless field_definition = type.fields[fields.first.name]
-        
-      end
-
+      # GraphQL Specification
+      #   6.3 Evaluate selection sets
+      #     CollectFields
+      #       responseKey implementation
+      #
       def key
         self.alias || self.name
       end
 
-      def resolve(type, root)
-        return nil unless field_definition = type.fields[name]
-        result = field_definition.resolve.call(root, {}, {})
+      # GraphQL Specification
+      #   6.4.1 Field entries
+      #     ResolveFieldOnObject implementation
+      #       objectType, object, firstField = self
+      #
+      # TODO: think of way to have defined arguments at this point
+      # TODO: think of way to have error accessor at this point
+      # TODO: think of some kind of context to pass through as third parameter
+      # TODO: think of should or shouldn't we pass self as fourth parameter
+      #
+      def resolve(object_type, object)
+        object_type.field(name).resolve.nil? ? default_resolve(object) : object_type.field(name).resolve.call(object, self.arguments)
+      end
+
+      def default_resolve(object)
+        object.public_send(name)
       end
 
     end
