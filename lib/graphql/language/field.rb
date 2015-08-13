@@ -15,12 +15,13 @@ module GraphQL
       #   6.4.1 Field entries
       #     ResolveFieldOnObject implementation
       #       objectType, object, firstField = self
+      #         + context[document, schema, root]
       #
       # TODO: think of way to have defined arguments at this point. Validator?
       # TODO: think of some kind of context to pass through as third parameter
       # TODO: think of should or shouldn't we pass self as fourth parameter
       #
-      def resolve(object_type, object)
+      def resolve(context, object_type, object)
         object_type.field(name).resolve.nil? ? default_resolve(object) : object_type.field(name).resolve.call(object, self.arguments)
       end
 

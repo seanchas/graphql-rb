@@ -132,6 +132,8 @@ module StarWars
 
   Schema = GraphQL::GraphQLSchema.new do
 
+    name 'StarWars'
+
     query QueryType
 
   end
