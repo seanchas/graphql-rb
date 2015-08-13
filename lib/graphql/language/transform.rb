@@ -91,6 +91,7 @@ module GraphQL
       rule(int_value:       simple(:a)) { { value: a.to_i,      kind: :int      } }
       rule(float_value:     simple(:a)) { { value: a.to_f,      kind: :float    } }
       rule(boolean_value:   simple(:a)) { { value: a == 'true', kind: :boolean  } }
+      rule(enum_value:      simple(:a)) { { value: a,           kind: :enum     } }
       rule(list_value:    sequence(:a)) { { value: a,           kind: :list     } }
       rule(object_value:   subtree(:a)) { { value: a,           kind: :object   } }
 

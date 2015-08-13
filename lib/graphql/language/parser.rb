@@ -300,7 +300,7 @@ module GraphQL
       end
 
       rule(:named_type) do
-        ignored? >> name >> ignored?
+        ignored? >> name.as(:named_type) >> ignored?
       end
 
       rule(:list_type) do

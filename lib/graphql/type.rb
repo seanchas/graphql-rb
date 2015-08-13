@@ -37,7 +37,7 @@ module GraphQL
 
   end
 
-  def named_type(type)
+  def self.named_type(type)
     type = type.of_type while type.is_a?(GraphQLList) || type.is_a?(GraphQLNonNull)
   end
 

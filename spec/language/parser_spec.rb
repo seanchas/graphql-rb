@@ -7,13 +7,18 @@ RSpec.describe GraphQL::Language do
 
   def hero_query
     %Q(
-      query getHero($episode: String){
+      query getHero($episode: Human! = "abc"){
         hero(episode: $episode) {
           id
           name
           friends {
             name
-            home_planet
+            friends {
+              name
+              friends {
+                name
+              }
+            }
           }
 
           ... humanFields
@@ -35,6 +40,9 @@ RSpec.describe GraphQL::Language do
 
   it "Should parse query" do
     document = GraphQL::Language.parse(hero_query)
+    validator = GraphQL::Validator.new(StarWars::Schema, document, { episode: 4 })
+    puts validator.validate!
+    puts validator.errors
     puts document.execute(StarWars::Schema, { episode: '4' })
   end
 

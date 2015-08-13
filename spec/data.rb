@@ -1,5 +1,9 @@
+require 'celluloid/current'
+require 'logger'
+
 module StarWars
-  module Data
+  class Data
+    include Celluloid
 
     Human   = Struct.new('Human', :id, :name, :friends, :appears_in, :home_planet)
     Droid   = Struct.new('Droid', :id, :name, :friends, :appears_in, :primary_function)
@@ -15,9 +19,71 @@ module StarWars
 
     Characters = [Luke, Vader, Han, Leia, Tarkin, ThreePO, Artoo]
 
-    def self.select(ids)
-      Characters.select { |character| ids.include?(character.id) }
+    def self.logger
+      @logger ||= Logger.new(STDOUT)
     end
+
+    def self.get(id)
+      Fetcher.fetch(id)
+    end
+
+    def self.select(ids)
+      Fetcher.fetch(ids)
+    end
+
+
+    class Fetcher
+      include Celluloid
+
+      def self.logger
+        @logger ||= Logger.new(STDOUT)
+      end
+
+      def self.fetch(id_or_ids)
+        logger.info "Fetching `#{id_or_ids}`"
+        pool.future.fetch(id_or_ids)
+      end
+
+      def self.pool
+        @pool ||= new
+      end
+
+      def initialize
+        @timer  = after(0.005) { perform_fetch }
+        @data   = {}
+      end
+
+      def restart
+        @timer.reset
+      end
+
+      def fetch(id_or_ids)
+        condition = Celluloid::Condition.new
+        (@data[id_or_ids] ||= []) << lambda { |value| condition.signal(value) }
+        restart
+        condition.wait
+      end
+
+      def perform_fetch
+        self.class.logger.info "Performing fetch"
+        data        = @data
+        @data       = {}
+        ids         = data.keys.flatten.uniq
+        self.class.logger.info "select * from table where id in #{ids}"
+        sleep 1
+        characters  = Data::Characters.select { |c| ids.include?(c.id) }
+        data.each do |key, blocks|
+          result = if key.is_a?(Array)
+            result = characters.select { |c| key.include?(c.id) }
+          else
+            result = characters.find { |c| key == (c.id) }
+          end
+          blocks.each { |block| block.call(result) }
+        end
+      end
+
+    end
+
 
   end
 end

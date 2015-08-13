@@ -108,7 +108,7 @@ module StarWars
       end
 
       resolve lambda { |root, params, *args|
-        return StarWars::Data::Luke
+        return StarWars::Data::get('1000')
       }
     end
 
