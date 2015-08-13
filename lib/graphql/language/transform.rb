@@ -15,11 +15,11 @@ module GraphQL
         variable_definitions:   subtree(:c),
         directives:             subtree(:d),
         selection_set:           simple(:e)
-      }) { OperationDefinition.new(a, b, c, d, e) }
+      }) { OperationDefinition.new(a, b, c || [], d || [], e || []) }
 
       rule(operation_definition: {
         selection_set: simple(:a)
-      }) { OperationDefinition.new('query', nil, nil, nil, a) }
+      }) { OperationDefinition.new('query', '', [], [], a) }
 
 
       rule(fragment_definition: {
@@ -27,20 +27,20 @@ module GraphQL
         type_condition:   subtree(:b),
         directives:       subtree(:c),
         selection_set:     simple(:d)
-      }) { FragmentDefinition.new(a, b, c, d) }
+      }) { FragmentDefinition.new(a, b, c || [], d || []) }
 
 
       rule(fragment_spread: {
         name:         simple(:a),
         directives:   subtree(:b)
-      }) { FragmentSpread.new(a, b) }
+      }) { FragmentSpread.new(a, b || []) }
 
 
       rule(inline_fragment: {
         type_condition:   subtree(:a),
         directives:       subtree(:b),
         selection_set:     simple(:c)
-      }) { InlineFragment.new(a, b, c) }
+      }) { InlineFragment.new(a, b || [], c || []) }
 
 
       rule(field: {
@@ -49,13 +49,13 @@ module GraphQL
         arguments:      subtree(:c),
         directives:     subtree(:d),
         selection_set:   simple(:e)
-      }) { Field.new(a, b, c, d, e) }
+      }) { Field.new(a, b, c || [], d || [], e || []) }
 
 
       rule(directive: {
         name:       simple(:a),
         arguments:  subtree(:b)
-      }) { Directive.new(a, b) }
+      }) { Directive.new(a, b || []) }
 
 
       rule(argument: {
@@ -66,7 +66,7 @@ module GraphQL
 
       rule(selection_set: {
         selections: subtree(:a)
-      }) { SelectionSet.new(a) }
+      }) { SelectionSet.new(a || []) }
 
 
       rule(variable_definition: {

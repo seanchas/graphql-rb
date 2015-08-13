@@ -108,7 +108,11 @@ module StarWars
       end
 
       resolve lambda { |root, params, *args|
-        return StarWars::Data::get('1000')
+        if params[:episode] == 'JEDI'
+          return StarWars::Data::get('1000')
+        else
+          return StarWars::Data::get('2000')
+        end
       }
     end
 

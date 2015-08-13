@@ -22,11 +22,22 @@ module GraphQL
       # TODO: think of should or shouldn't we pass self as fourth parameter
       #
       def resolve(context, object_type, object)
-        object_type.field(name).resolve.nil? ? default_resolve(object) : object_type.field(name).resolve.call(object, self.arguments)
+        object_type.field(name).resolve(object, prepare_arguments(context[:params]))
       end
 
-      def default_resolve(object)
-        object.public_send(name, *arguments)
+      def prepare_arguments(params)
+        arguments.reduce({}) do |memo, argument|
+          key = argument.name.to_sym
+
+          case argument.value
+          when Variable
+            memo[key] = params[key]
+          when Value
+            memo[key] = argument.value.value
+          end
+
+          memo
+        end
       end
 
     end
