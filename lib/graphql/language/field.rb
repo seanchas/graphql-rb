@@ -34,7 +34,7 @@ module GraphQL
         schema_field = object_type.field(name)
         schema_field.args.reduce({}) do |memo, field_argument|
           argument = arguments.find { |argument| argument.name == field_argument.name }
-          memo[argument.name] = argument.materialize(field_argument.type, variables) unless argument.nil?
+          memo[argument.name.to_sym] = argument.materialize(field_argument.type, variables) unless argument.nil?
           memo
         end
       end
