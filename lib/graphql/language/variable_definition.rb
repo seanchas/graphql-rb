@@ -2,40 +2,32 @@ module GraphQL
   module Language
     VariableDefinition = Struct.new('VariableDefinition', :variable, :type, :default_value) do
 
-      def value(context)
-        @value ||= begin
-          schema_type     = context[:schema].type(type.named_type)
-          type_for_schema = "type '#{type.named_type}' for schema '#{context[:schema].name}'"
 
-          if schema_type.nil?
-            puts "Unknown #{type_for_schema}."
-            return nil
-          end
+      def materialize(schema, param)
+        schema_type = type.materialize(schema)
 
-          unless schema_type.is_a?(GraphQLInputType)
-            puts "Not an input #{type_for_schema}."
-            return nil
-          end
-
-          value_from_params = context[:params][variable.name.to_sym]
-
-          unless value_from_params.nil?
-            value = schema_type.parse_value(value_from_params)
-            if value.nil?
-              puts "Cannot coerce provided value '#{value_from_params}' for #{type_for_schema}."
-              return nil
-            end
-          else
-            value = schema_type.parse_literal(default_value)
-            if value.nil?
-              puts "Cannot coerce default value '#{default_value.value}' for #{type_for_schema}."
-              return nil
-            end
-          end
-
-          value
+        if schema_type.nil? || !schema_type.is_a?(GraphQLInputType)
+          raise GraphQLError, "Variable '#{variable.name}' expected value " +
+            "of type '#{schema_type}' which cannot be used as input type."
         end
+
+        if Validator.valid_value?(param, schema_type)
+          if !param && default_value
+            return default_value.materialize(schema_type)
+          end
+          return Validator.coerce_value(param, schema_type)
+        end
+
+        if param
+          raise GraphQLError, "Variable '#{variable.name}' expected value " +
+            "of type '#{schema_type}' but got '#{param}'."
+        else
+          raise GraphQLError, "Variable '#{variable.name}' " +
+            "of required type '#{type}' was not provided."
+        end
+
       end
+
 
     end
   end

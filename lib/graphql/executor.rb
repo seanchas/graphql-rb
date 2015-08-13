@@ -60,7 +60,6 @@ module GraphQL
       context[:root]    = root
       context[:params]  = params
 
-      operation.prepare_variables!(context)
       materialize(operation.evaluate(context))
     end
 

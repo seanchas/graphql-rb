@@ -6,6 +6,10 @@ module GraphQL
         type
       end
 
+      def materialize(schema)
+        schema.type(type)
+      end
+
     end
   end
 end

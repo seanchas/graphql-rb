@@ -70,7 +70,7 @@ module StarWars
         @data       = {}
         ids         = data.keys.flatten.uniq
         self.class.logger.info "select * from table where id in #{ids}"
-        sleep 1
+        # sleep 1
         characters  = Data::Characters.select { |c| ids.include?(c.id) }
         data.each do |key, blocks|
           result = if key.is_a?(Array)

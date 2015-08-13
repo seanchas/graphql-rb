@@ -22,20 +22,19 @@ module GraphQL
       # TODO: think of should or shouldn't we pass self as fourth parameter
       #
       def resolve(context, object_type, object)
-        object_type.field(name).resolve(object, prepare_arguments(context[:params]), context[:root])
+        object_type.field(name).resolve(
+          object,
+          materialize_arguments(object_type, context[:variables]),
+          context[:root]
+        )
       end
 
-      def prepare_arguments(params)
-        arguments.reduce({}) do |memo, argument|
-          key = argument.name.to_sym
 
-          case argument.value
-          when Variable
-            memo[key] = params[key]
-          when Value
-            memo[key] = argument.value.value
-          end
-
+      def materialize_arguments(object_type, variables)
+        schema_field = object_type.field(name)
+        schema_field.args.reduce({}) do |memo, field_argument|
+          argument = arguments.find { |argument| argument.name == field_argument.name }
+          memo[argument.name] = argument.materialize(field_argument.type, variables) unless argument.nil?
           memo
         end
       end
