@@ -2,6 +2,7 @@ module GraphQL
 
   class GraphQLSchemaConfiguration < GraphQL::Configuration::Base
 
+    slot :name,       String
     slot :query,      GraphQLObjectType
     slot :mutation,   GraphQLObjectType, null: true
 
@@ -26,6 +27,10 @@ module GraphQL
 
     def type(name)
       type_map[name]
+    end
+
+    def to_s
+      name
     end
 
   end

@@ -49,7 +49,7 @@ module StarWars
       end
 
       def initialize
-        @timer  = after(0.005) { perform_fetch }
+        @timer  = after(0.01) { perform_fetch }
         @data   = {}
       end
 
