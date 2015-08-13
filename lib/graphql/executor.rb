@@ -20,12 +20,12 @@ module GraphQL
 
         case field_type
         when GraphQLNonNull
-          completed_object = FutureCompleter.complete_value(context, field_type.of_type, resolved_object, selection_set)
+          completed_object = complete_value(context, field_type.of_type, resolved_object, selection_set)
           raise "Field error: expecting non null value" if completed_object.nil?
           completed_object
         when GraphQLList
           resolved_object.map do |item|
-            FutureCompleter.complete_value(context, field_type.of_type, item, selection_set)
+            complete_value(context, field_type.of_type, item, selection_set)
           end
         when GraphQLScalarType, GraphQLEnumType
           field_type.serialize(resolved_object)
