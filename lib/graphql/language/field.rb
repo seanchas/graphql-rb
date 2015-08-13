@@ -22,7 +22,7 @@ module GraphQL
       # TODO: think of should or shouldn't we pass self as fourth parameter
       #
       def resolve(context, object_type, object)
-        object_type.field(name).resolve(object, prepare_arguments(context[:params]))
+        object_type.field(name).resolve(object, prepare_arguments(context[:params]), context[:root])
       end
 
       def prepare_arguments(params)
