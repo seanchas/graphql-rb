@@ -23,6 +23,14 @@ module GraphQL
     def args
       @args ||= @configuration.args
     end
+
+    def resolve(object, *arguments)
+      unless @configuration.resolve.nil?
+        @configuration.resolve.call(object, *arguments)
+      else
+        object.public_send(name)
+      end
+    end
   end
 
 end

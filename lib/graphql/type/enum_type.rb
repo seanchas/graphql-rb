@@ -52,7 +52,7 @@ module GraphQL
     include GraphQLLeafType
     include GraphQLNullableType
     include GraphQLNamedType
-    
+
     configure_with GraphQLEnumTypeConfiguration
 
     def values
@@ -62,6 +62,7 @@ module GraphQL
         memo
       end
     end
+
 
     def coerce(value)
       values_by_value[value].name rescue nil
