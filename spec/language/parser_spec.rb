@@ -7,8 +7,8 @@ RSpec.describe GraphQL::Language do
 
   def hero_query
     %Q(
-      query getHero($episode: Episode!) {
-        hero(episode: $episode) {
+      query getHero($episode: Episode!, $heroes: [String] = ["1001", "1002"]) {
+        hero(episode: JEDI) {
           id
           name
           friends {
@@ -41,7 +41,7 @@ RSpec.describe GraphQL::Language do
   it "Should parse query" do
     document  = GraphQL::Language.parse(hero_query)
     executor  = GraphQL::Executor.new(document, StarWars::Schema)
-    puts executor.execute(nil, { episode: 'JEDI' }).inspect
+    puts executor.execute(nil, { episode: 'JEDI', heroes: ['1001'] }).inspect
   end
 
 end
