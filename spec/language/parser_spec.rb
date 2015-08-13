@@ -41,7 +41,7 @@ RSpec.describe GraphQL::Language do
   it "Should parse query" do
     document  = GraphQL::Language.parse(hero_query)
     executor  = GraphQL::Executor.new(document, StarWars::Schema)
-    puts executor.execute(nil, { episode: 6 }).inspect
+    puts executor.execute(nil, { episode: 'JEDI' }).inspect
   end
 
 end

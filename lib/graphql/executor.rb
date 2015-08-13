@@ -28,7 +28,7 @@ module GraphQL
             FutureCompleter.complete_value(context, field_type.of_type, item, selection_set)
           end
         when GraphQLScalarType, GraphQLEnumType
-          field_type.coerce(resolved_object)
+          field_type.serialize(resolved_object)
         when GraphQLObjectType, GraphQLInterfaceType, GraphQLUnionType
           field_type = field_type.resolve_type(resolved_object) if field_type.is_a?(GraphQLAbstractType)
           selection_set.evaluate(context, field_type, resolved_object)

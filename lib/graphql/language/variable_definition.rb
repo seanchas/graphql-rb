@@ -20,13 +20,13 @@ module GraphQL
           value_from_params = context[:params][variable.name.to_sym]
 
           unless value_from_params.nil?
-            value = schema_type.coerce(value_from_params)
+            value = schema_type.parse_value(value_from_params)
             if value.nil?
               puts "Cannot coerce provided value '#{value_from_params}' for #{type_for_schema}."
               return nil
             end
           else
-            value = schema_type.coerce_literal(default_value)
+            value = schema_type.parse_literal(default_value)
             if value.nil?
               puts "Cannot coerce default value '#{default_value.value}' for #{type_for_schema}."
               return nil

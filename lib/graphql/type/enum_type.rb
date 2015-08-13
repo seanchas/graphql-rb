@@ -64,15 +64,17 @@ module GraphQL
     end
 
 
-    def coerce(value)
+    def serialize(value)
       values_by_value[value].name rescue nil
     end
 
-
-    def coerce_literal(ast)
-      ast[:kind] == :enum ? (values[ast[:value]].value rescue nil) : nil
+    def parse_value(value)
+      values[value.to_s].value rescue nil
     end
 
+    def parse_literal(ast)
+      ast[:kind] == :enum ? (values[ast[:value]].value rescue nil) : nil
+    end
 
     def to_s
       name
