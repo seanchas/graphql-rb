@@ -17,6 +17,10 @@ module GraphQL
       end
 
       class << self
+        def inherited(base)
+          base.instance_variable_set(:"@slots", @slots)
+        end
+
         def slots
           @slots ||= {}
         end
