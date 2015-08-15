@@ -9,7 +9,7 @@ module GraphQL
       #         + context[schema, document]
       #
       def apply?(context, object_type)
-        type = context[:schema].type(type_condition)
+        type = context[:schema].type(type_condition.type)
 
         return type == object_type if type.is_a?(GraphQLObjectType)
 
