@@ -26,7 +26,7 @@ module GraphQL
             context
         ]
 
-        resolve   = object_type.field(name).method(:resolve)
+        resolve   = object_type.field(name).resolve
         arguments = arguments.slice(0, resolve.arity) if resolve.arity >= 0
 
         resolve.call(*arguments)

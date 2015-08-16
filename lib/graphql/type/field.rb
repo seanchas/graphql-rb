@@ -16,6 +16,12 @@ module GraphQL
   class GraphQLField < GraphQL::Configuration::Configurable
     configure_with GraphQLFieldConfiguration
 
+    DEFAULT_RESOLVE = lambda { |name|
+      lambda { |object|
+        object.public_send(name)
+      }
+    }
+
     def type
       @type ||= @configuration.type.is_a?(Proc) ? @configuration.type.call : @configuration.type
     end
@@ -24,12 +30,8 @@ module GraphQL
       @args ||= @configuration.args
     end
 
-    def resolve(object, *arguments)
-      unless @configuration.resolve.nil?
-        @configuration.resolve.call(object, *arguments)
-      else
-        object.public_send(name)
-      end
+    def resolve
+      @configuration.resolve || DEFAULT_RESOLVE.call(name)
     end
   end
 
