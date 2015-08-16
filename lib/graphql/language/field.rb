@@ -20,11 +20,16 @@ module GraphQL
       # TODO: think of should or shouldn't we pass self as fourth parameter
       #
       def resolve(context, object_type, object)
-        object_type.field(name).resolve(
-          object,
-          materialize_arguments(object_type, context[:variables]),
-          context
-        )
+        arguments = [
+            object,
+            materialize_arguments(object_type, context[:variables]),
+            context
+        ]
+
+        resolve   = object_type.field(name).method(:resolve)
+        arguments = arguments.slice(0, resolve.arity) if resolve.arity >= 0
+
+        resolve.call(*arguments)
       end
 
 
