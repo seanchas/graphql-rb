@@ -31,7 +31,7 @@ module GraphQL
     end
 
     def resolve
-      @configuration.resolve || DEFAULT_RESOLVE.call(name)
+      @resolve ||= @configuration.resolve || DEFAULT_RESOLVE.call(name)
     end
   end
 
