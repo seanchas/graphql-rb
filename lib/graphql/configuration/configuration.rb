@@ -50,14 +50,20 @@ module GraphQL
           writer_name             = :"#{slot.name}="
 
           if slot.list?
-            define_method(reader_name) do
-              instance_variable_set(instance_variable_name, []) if instance_variable_get(instance_variable_name).nil?
-              instance_variable_get(instance_variable_name)
+            list_instance_variable_name   = instance_variable_name
+            list_reader_name              = reader_name
+            instance_variable_name        = :"@#{slot.singular}"
+            reader_name                   = :"#{slot.singular}"
+            writer_name                   = :"#{slot.singular}="
+
+            define_method(list_reader_name) do |items = []|
+              instance_variable_set(list_instance_variable_name, []) if instance_variable_get(list_instance_variable_name).nil?
+              items.each do |item|
+                public_send(reader_name, item)
+              end
+              instance_variable_get(list_instance_variable_name)
             end
 
-            instance_variable_name  = :"@#{slot.singular}"
-            reader_name             = :"#{slot.singular}"
-            writer_name             = :"#{slot.singular}="
           end
 
           define_method(writer_name) do |*args, &block|
