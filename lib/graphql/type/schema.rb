@@ -36,6 +36,10 @@ module GraphQL
       type_map[name]
     end
 
+    def directives
+      @directives ||= [GraphQLSkipDirective, GraphQLIncludeDirective]
+    end
+
     def to_s
       name
     end
