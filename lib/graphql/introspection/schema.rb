@@ -95,7 +95,7 @@ module GraphQL
 
         resolve lambda { |type, params|
           return nil unless type.is_a?(GraphQLEnumType)
-          values = type.values.values
+          values = type.values
           values = values.select { |value| !value.deprecation_reason } unless params[:includeDeprecated]
           values
         }

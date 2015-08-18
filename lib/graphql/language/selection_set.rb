@@ -22,20 +22,20 @@ module GraphQL
         #
 
         grouped_fields.reduce({}) do |memo, (key, fields)|
-          field       = fields.first
-          field_type  = case
+          field             = fields.first
+          field_definition  = case
           when GraphQL::Introspection.meta_field?(field.name)
-            GraphQL::Introspection.meta_field(field.name).type
+            GraphQL::Introspection.meta_field(field.name)
           else
-            object_type.field(field.name).type
+            object_type.field(field.name)
           end
 
-          unless field_type.nil?
+          unless field_definition.nil?
             resolve_context = context.merge({ parent_type: object_type })
 
             resolved_object   = field.resolve(context, object_type, object)
             selection_set     = merge_selection_sets(fields)
-            memo[key.to_sym]  = Executor::FutureCompleter.complete_value(context, field_type, resolved_object, selection_set)
+            memo[key.to_sym]  = Executor::FutureCompleter.complete_value(context, field_definition.type, resolved_object, selection_set)
           end
 
           memo
