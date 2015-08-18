@@ -13,6 +13,23 @@ module GraphQL
 
   class GraphQLDirective < GraphQL::Configuration::Configurable
     configure_with GraphQLDirectiveConfiguration
+
+    def arg_map
+      @arg_map ||= @configuration.args.reduce({}) { |memo, arg| memo[arg.name.to_sym] = arg ; memo }
+    end
+
+    def arg_names
+      @arg_names ||= arg_map.keys
+    end
+
+    def args
+      @args ||= arg_map.values
+    end
+
+    def arg(name)
+      arg_map(name.to_sym)
+    end
+
   end
 
 end

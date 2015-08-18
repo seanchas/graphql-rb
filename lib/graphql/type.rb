@@ -57,7 +57,7 @@ module GraphQL
     end
 
     if type.is_a?(GraphQLObjectType) || type.is_a?(GraphQLInterfaceType)
-      type.fields.each do |name, field|
+      type.field_map.each do |name, field|
         memo = field.args.map(&:type).reduce(memo, &TypeMapReducer)
         memo = TypeMapReducer.call(memo, field.type)
       end

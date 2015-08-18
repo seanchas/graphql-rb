@@ -26,8 +26,20 @@ module GraphQL
       @type ||= @configuration.type.is_a?(Proc) ? @configuration.type.call : @configuration.type
     end
 
+    def arg_map
+      @arg_map ||= @configuration.args.reduce({}) { |memo, arg| memo[arg.name.to_sym] = arg ; memo }
+    end
+
+    def arg_names
+      @arg_names ||= arg_map.keys
+    end
+
     def args
-      @args ||= @configuration.args
+      @args ||= arg_map.values
+    end
+
+    def arg(name)
+      arg_map(name.to_sym)
     end
 
     def resolve

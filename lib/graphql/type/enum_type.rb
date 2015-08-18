@@ -55,41 +55,45 @@ module GraphQL
 
     configure_with GraphQLEnumTypeConfiguration
 
-    def values
-      @values ||= @configuration.values.reduce({}) do |memo, value|
-        value.value       = value.name if value.value.nil?
-        memo[value.name]  = value
+
+    def value_map
+      @value_map ||= @configuration.values.reduce({}) do |memo, value|
+        value.value = value.name if value.value.nil?
+        memo[value.name.to_sym] = value
         memo
       end
     end
 
-
-    def serialize(value)
-      values_by_value[value].name rescue nil
+    def value_map_by_values
+      @value_map_by_values ||= values.reduce({}) { |memo, value| memo[value.value.to_s] = value ; memo }
     end
 
-    def parse_value(value)
-      values[value.to_s].value rescue nil
+    def value_names
+      @value_names ||= value_map.keys
+    end
+
+    def values
+      @values ||= value_map.values
+    end
+
+    def value(name)
+      value_map[name.to_sym]
+    end
+
+    def serialize(v)
+      value_map_by_values[v.to_s].name rescue nil
+    end
+
+    def parse_value(v)
+      value(v).value rescue nil
     end
 
     def parse_literal(ast)
-      ast[:kind] == :enum ? (values[ast[:value]].value rescue nil) : nil
+      value(ast[:value]).value rescue nil if ast[:kind] == :enum
     end
 
     def to_s
       name
-    end
-
-    private
-
-    def values_by_value
-      @values_by_value ||= begin
-        values.reduce({}) do |memo, pair|
-          name, value = pair
-          memo[value.value] = value
-          memo
-        end
-      end
     end
 
   end

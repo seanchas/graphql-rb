@@ -24,12 +24,24 @@ module GraphQL
     end
 
     def implement!(type)
-      raise RuntimeError.new("{self} can implement instances of GraphQLType. Got #{type.class}.") unless type.is_a?(GraphQLType)
+      raise RuntimeError.new("#{self} can implement instances of GraphQLType. Got #{type.class}.") unless type.is_a?(GraphQLType)
       @implementations << type unless possible_type?(type)
     end
 
+    def field_map
+      @field_map ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name.to_sym] = field ; memo}
+    end
+
+    def field_names
+      @field_names ||= field_map.keys
+    end
+
     def fields
-      @fields ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name] = field ; memo}
+      @fields ||= field_map.values
+    end
+
+    def field(name)
+      field_map(name.to_sym)
     end
 
     def possible_types

@@ -25,12 +25,20 @@ module GraphQL
     end
 
 
+    def field_map
+      @field_map ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name.to_sym] = field ; memo}
+    end
+
+    def field_names
+      @field_names ||= field_map.keys
+    end
+
     def fields
-      @fields ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name] = field ; memo}
+      @fields ||= field_map.values
     end
 
     def field(name)
-      fields[name]
+      field_map[name.to_sym]
     end
 
     def interfaces

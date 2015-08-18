@@ -2,7 +2,7 @@ module GraphQL
 
   class GraphQLInputObjectField < GraphQL::Configuration::Base
     slot :name,           String
-    slot :type,           Object # GraphQLInputType
+    slot :type,           GraphQLInputType
     slot :default_value,  Object,   null: true
     slot :description,    String,   null: true
   end
@@ -22,13 +22,21 @@ module GraphQL
 
     configure_with GraphQLInputObjectTypeConfiguration
 
+
+    def field_map
+      @field_map ||= @configuration.fields.reduce({}) { |memo, field| memo[field.name.to_sym] = field ; memo }
+    end
+
+    def field_names
+      @field_names ||= field_map.keys
+    end
+
     def fields
-      @fields ||= begin
-        @configuration.fields.reduce({}) do |memo, field|
-          memo[field.name] = field
-          memo
-        end
-      end
+      @fields ||= field_map.values
+    end
+
+    def field(name)
+      field_map[name.to_sym]
     end
 
     def to_s

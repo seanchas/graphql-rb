@@ -108,7 +108,7 @@ module GraphQL
         }
       end
 
-      field :ofType, -> { Type__ }, resolve -> (type) { type.of_type rescue nil }
+      field :ofType, -> { Type__ }, resolve: -> (type) { type.of_type rescue nil }
 
     end
 
