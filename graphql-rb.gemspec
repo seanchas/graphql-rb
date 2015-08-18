@@ -17,6 +17,8 @@ Gem::Specification.new do |s|
   s.files       = Dir['{lib}/**/*', 'Rakefile']
   s.test_files  = Dir['spec/**/*']
 
+  s.required_ruby_version = '~> 2.0'
+
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'codeclimate-test-reporter'
