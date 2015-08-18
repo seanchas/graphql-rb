@@ -22,12 +22,15 @@ module GraphQL
         #
 
         grouped_fields.reduce({}) do |memo, (key, fields)|
-          field_type = object_type.field(fields.first.name).type rescue nil
+          field       = fields.first
+          field_type  = object_type.field(field.name).type rescue nil
 
           unless field_type.nil?
-            resolved_object = fields.first.resolve(context, object_type, object)
-            selection_set   = merge_selection_sets(fields)
-            memo[key]       = Executor::FutureCompleter.complete_value(context, field_type, resolved_object, selection_set)
+            resolve_context = context.merge({ parent_type: object_type })
+
+            resolved_object   = field.resolve(context, object_type, object)
+            selection_set     = merge_selection_sets(fields)
+            memo[key.to_sym]  = Executor::FutureCompleter.complete_value(context, field_type, resolved_object, selection_set)
           end
 
           memo

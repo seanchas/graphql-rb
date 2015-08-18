@@ -13,11 +13,12 @@ RSpec.describe GraphQL::Language do
           name
           friends {
             name
-            friends {
+
+            ... humanFields
+
+            ... on Droid {
               name
-              friends {
-                name
-              }
+              primary_function
             }
           }
 
@@ -39,9 +40,34 @@ RSpec.describe GraphQL::Language do
 
 
   it "Should parse query" do
-    document  = GraphQL::Language.parse(hero_query)
-    executor  = GraphQL::Executor.new(document, StarWars::Schema)
-    puts executor.execute(nil, { episode: 'JEDI', heroes: ['1001'] }).inspect
+
+    expectation = {
+      data: {
+        hero: {
+          id:       "1000",
+          name:     "Like Skywalker",
+          friends:  [
+            {
+              name:         "Han Solo",
+              home_planet:  nil
+            }, {
+              name:         "Lea Organa",
+              home_planet:  "Alderaan"
+            }, {
+              name:               "C-3PO",
+              primary_function:   "Protocol"
+            }, {
+              name:               "R2-D2",
+              primary_function:   "Astromech"
+            }
+          ],
+          home_planet: "Tatooine"
+        }
+      }
+    }
+
+    result = GraphQL::graphql(StarWars::Schema, hero_query, nil, { episode: 'JEDI', heroes: ['1001'] })
+    expect(result).to eql(expectation)
   end
 
 end

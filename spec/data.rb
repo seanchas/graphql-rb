@@ -15,7 +15,7 @@ module StarWars
     Tarkin  = Human.new('1004', 'Wilhuff Tarkin',   ['1001'],                           [4])
 
     ThreePO = Droid.new('2000', 'C-3PO',            ['1000', '1002', '1003', '2001'],   [4, 5, 6], 'Protocol')
-    Artoo   = Droid.new('2001', 'R3-D2',            ['1000', '1002', '1003'],           [4, 5, 6], 'Astromech')
+    Artoo   = Droid.new('2001', 'R2-D2',            ['1000', '1002', '1003'],           [4, 5, 6], 'Astromech')
 
     Characters = [Luke, Vader, Han, Leia, Tarkin, ThreePO, Artoo]
 
