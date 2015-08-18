@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    graphql (0.0.1)
+    graphql-rb (0.0.1)
       celluloid
       parslet
 
@@ -90,6 +90,9 @@ PLATFORMS
 DEPENDENCIES
   awesome_print
   codeclimate-test-reporter
-  graphql!
+  graphql-rb!
   rake
   rspec
+
+BUNDLED WITH
+   1.10.6
