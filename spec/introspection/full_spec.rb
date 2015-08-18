@@ -1,6 +1,5 @@
 require 'graphql'
 require_relative '../schema'
-require 'awesome_print'
 
 RSpec.describe "Introspection - Full" do
 

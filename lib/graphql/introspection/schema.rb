@@ -5,7 +5,7 @@ module GraphQL
 
       name '__Schema'
 
-      description  'A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types' +
+      description  'A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types ' +
         'and directives on the server, as well as the entry points for query and mutation operations.'
 
       field :types, -> { ! + ! Type__ } do
