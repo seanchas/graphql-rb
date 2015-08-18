@@ -48,7 +48,7 @@ module GraphQL
     Type__ = GraphQLObjectType.new do
       name '__Type'
 
-      field :name,        GraphQLString
+      field :name,        GraphQLString, resolve: -> (type) { type.name rescue nil }
       field :description, GraphQLString
 
       field :kind, -> { ! TypeKind__ } do
@@ -72,7 +72,7 @@ module GraphQL
 
         resolve lambda { |type, params|
           return nil unless type.is_a?(GraphQLObjectType) || type.is_a?(GraphQLInterfaceType)
-          fields = type.fields.values
+          fields = type.fields
           fields = fields.select { |field| !field.deprecation_reason } unless params[:includeDeprecated]
           fields
         }
@@ -172,7 +172,7 @@ module GraphQL
 
       arg :name, ! GraphQLString
 
-      resolve -> (root, params, context) { context[:schema].field(params[:name]) }
+      resolve -> (root, params, context) { context[:schema].type(params[:name]) }
     end
 
     TypeNameMetaField = GraphQLField.new do
@@ -197,7 +197,11 @@ module GraphQL
     end
 
     def self.meta_field(name)
-      meta_field_map(name.to_sym)
+      meta_field_map[name.to_sym]
+    end
+
+    def self.meta_field?(name)
+      !!meta_field(name)
     end
   end
 

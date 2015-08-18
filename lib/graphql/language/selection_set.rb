@@ -23,7 +23,12 @@ module GraphQL
 
         grouped_fields.reduce({}) do |memo, (key, fields)|
           field       = fields.first
-          field_type  = object_type.field(field.name).type rescue nil
+          field_type  = case
+          when GraphQL::Introspection.meta_field?(field.name)
+            GraphQL::Introspection.meta_field(field.name).type
+          else
+            object_type.field(field.name).type
+          end
 
           unless field_type.nil?
             resolve_context = context.merge({ parent_type: object_type })

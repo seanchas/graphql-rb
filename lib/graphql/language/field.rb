@@ -26,7 +26,7 @@ module GraphQL
             context
         ]
 
-        resolve   = object_type.field(name).resolve
+        resolve   = schema_field(object_type).resolve
         arguments = arguments.slice(0, resolve.arity) if resolve.arity >= 0
 
         resolve.call(*arguments)
@@ -34,11 +34,19 @@ module GraphQL
 
 
       def materialize_arguments(object_type, variables)
-        schema_field = object_type.field(name)
-        schema_field.args.reduce({}) do |memo, field_argument|
+        schema_field(object_type).args.reduce({}) do |memo, field_argument|
           argument = arguments.find { |argument| argument.name == field_argument.name }
           memo[argument.name.to_sym] = argument.materialize(field_argument.type, variables) unless argument.nil?
           memo
+        end
+      end
+
+      def schema_field(object_type)
+        case
+        when GraphQL::Introspection.meta_field?(name)
+          GraphQL::Introspection.meta_field(name)
+        else
+          object_type.field(name)
         end
       end
 

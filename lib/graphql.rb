@@ -14,8 +14,8 @@ module GraphQL
     result    = executor.execute(root, params, operation)
 
     { data: result }
-  rescue StandardError => e
-    { errors: [e] }
+  # rescue StandardError => e
+  #   { errors: [e] }
   end
 
 end
