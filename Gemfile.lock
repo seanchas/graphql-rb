@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    graphql-rb (0.0.2)
+    graphql-rb (0.0.4)
       celluloid
       parslet
 
