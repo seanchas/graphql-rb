@@ -12,33 +12,32 @@ module GraphQL
       #       objectType, object, - fields
       #         + context[schema, document]
       #
-      # TODO: think of way to have error accessor at this point. Executor?
       #
       def evaluate(context, object_type, object)
-        grouped_fields = collect_fields(context, object_type)
+        Execution::Pool.future do
 
-        #
-        # TODO: Merge equal fields
-        #
+          collect_fields(context, object_type).reduce({}) do |memo, (key, fields)|
+            field             = fields.first
+            field_definition  = case
 
-        grouped_fields.reduce({}) do |memo, (key, fields)|
-          field             = fields.first
-          field_definition  = case
-          when GraphQL::Introspection.meta_field?(field.name)
-            GraphQL::Introspection.meta_field(field.name)
-          else
-            object_type.field(field.name)
+            when GraphQL::Introspection.meta_field?(field.name)
+              GraphQL::Introspection.meta_field(field.name)
+            else
+              object_type.field(field.name)
+            end
+
+
+            memo[key.to_sym]      = begin
+              resolution_context  = context.merge({ parent_type: object_type })
+              resolved_object     = field.resolve(resolution_context, object_type, object)
+              complete_value(context, field_definition.type, resolved_object, merge_selection_sets(fields))
+            rescue Celluloid::TaskTerminated => e
+              context[:errors] << "Field '#{field.name}' of '#{object_type}' error: #{e}"
+              nil
+            end unless field_definition.nil?
+
+            memo
           end
-
-          unless field_definition.nil?
-            resolve_context = context.merge({ parent_type: object_type })
-
-            resolved_object   = field.resolve(context, object_type, object)
-            selection_set     = merge_selection_sets(fields)
-            memo[key.to_sym]  = Executor::FutureCompleter.complete_value(context, field_definition.type, resolved_object, selection_set)
-          end
-
-          memo
         end
       end
 
@@ -100,6 +99,32 @@ module GraphQL
         end
 
         SelectionSet.new(selections)
+      end
+
+
+      def complete_value(context, field_type, resolved_object, selection_set)
+        return nil if resolved_object.nil?
+
+        return Execution::Pool.future do
+          complete_value(context, field_type, resolved_object.value, selection_set)
+        end if resolved_object.is_a?(Celluloid::Future)
+
+        case field_type
+        when GraphQLNonNull
+          completed_object = complete_value(context, field_type.of_type, resolved_object, selection_set)
+          raise "Field error: expecting non null value" if completed_object.nil?
+          completed_object
+        when GraphQLList
+          resolved_object.map do |item|
+            complete_value(context, field_type.of_type, item, selection_set)
+          end
+        when GraphQLScalarType, GraphQLEnumType
+          field_type.serialize(resolved_object)
+        when GraphQLObjectType, GraphQLInterfaceType, GraphQLUnionType
+          field_type = field_type.resolve_type(resolved_object) if field_type.is_a?(GraphQLAbstractType)
+          selection_set.evaluate(context, field_type, resolved_object)
+        end
+
       end
 
     end
