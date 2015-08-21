@@ -105,9 +105,7 @@ module GraphQL
       def complete_value(context, field_type, resolved_object, selection_set)
         return nil if resolved_object.nil?
 
-        return Execution::Pool.future do
-          complete_value(context, field_type, resolved_object.value, selection_set)
-        end if resolved_object.is_a?(Celluloid::Future)
+        resolved_object = resolved_object.value if resolved_object.is_a?(Celluloid::Future)
 
         case field_type
         when GraphQLNonNull
