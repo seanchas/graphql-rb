@@ -21,8 +21,8 @@ module GraphQL
       end
 
       def self._pool
-        Celluloid::Actor[pool_id] || Worker.supervise(as: pool_id)
-        Celluloid::Actor[pool_id]
+        Celluloid::Actor[pool_id] ||= Worker.pool#(as: pool_id)
+        # Celluloid::Actor[pool_id]
       end
 
       def self.pool_id

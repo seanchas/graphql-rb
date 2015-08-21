@@ -23,7 +23,7 @@ module GraphQL
         arguments = [
             object,
             materialize_arguments(object_type, context[:variables]),
-            context
+            context.merge(parent_type: object_type)
         ]
 
         resolve   = schema_field(object_type).resolve
@@ -40,6 +40,7 @@ module GraphQL
           memo
         end
       end
+
 
       def schema_field(object_type)
         case

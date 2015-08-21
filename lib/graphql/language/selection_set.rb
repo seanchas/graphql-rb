@@ -14,30 +14,34 @@ module GraphQL
       #
       #
       def evaluate(context, object_type, object)
-        Execution::Pool.future do
+        collect_fields(context, object_type).reduce({}) do |memo, (key, fields)|
+          field             = fields.first
+          field_definition  = case
 
-          collect_fields(context, object_type).reduce({}) do |memo, (key, fields)|
-            field             = fields.first
-            field_definition  = case
+          when GraphQL::Introspection.meta_field?(field.name)
+            GraphQL::Introspection.meta_field(field.name)
+          else
+            object_type.field(field.name)
+          end
 
-            when GraphQL::Introspection.meta_field?(field.name)
-              GraphQL::Introspection.meta_field(field.name)
+
+          memo[key.to_sym]      = begin
+            resolved_object     = field.resolve(context, object_type, object)
+
+            if resolved_object.is_a?(Celluloid::Future)
+              Execution::Pool.future do
+                complete_value(context, field_definition.type, resolved_object.value, merge_selection_sets(fields))
+              end
             else
-              object_type.field(field.name)
+              complete_value(context, field_definition.type, resolved_object, merge_selection_sets(fields))
             end
 
+          rescue Celluloid::TaskTerminated => e
+            context[:errors] << "Field '#{field.name}' of '#{object_type}' error: #{e}"
+            nil
+          end unless field_definition.nil?
 
-            memo[key.to_sym]      = begin
-              resolution_context  = context.merge({ parent_type: object_type })
-              resolved_object     = field.resolve(resolution_context, object_type, object)
-              complete_value(context, field_definition.type, resolved_object, merge_selection_sets(fields))
-            rescue Celluloid::TaskTerminated => e
-              context[:errors] << "Field '#{field.name}' of '#{object_type}' error: #{e}"
-              nil
-            end unless field_definition.nil?
-
-            memo
-          end
+          memo
         end
       end
 
@@ -104,8 +108,6 @@ module GraphQL
 
       def complete_value(context, field_type, resolved_object, selection_set)
         return nil if resolved_object.nil?
-
-        resolved_object = resolved_object.value if resolved_object.is_a?(Celluloid::Future)
 
         case field_type
         when GraphQLNonNull
