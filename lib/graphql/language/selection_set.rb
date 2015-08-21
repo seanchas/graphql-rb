@@ -13,33 +13,63 @@ module GraphQL
       #         + context[schema, document]
       #
       #
-      def evaluate(context, object_type, object)
-        collect_fields(context, object_type).reduce({}) do |memo, (key, fields)|
-          field             = fields.first
-          field_definition  = case
+      # def evaluate(context, object_type, object)
+      #   collect_fields(context, object_type).reduce({}) do |memo, (key, fields)|
+      #     field             = fields.first
+      #     field_definition  = case
+      #
+      #     when GraphQL::Introspection.meta_field?(field.name)
+      #       GraphQL::Introspection.meta_field(field.name)
+      #     else
+      #       object_type.field(field.name)
+      #     end
+      #
+      #
+      #     memo[key.to_sym]      = begin
+      #       resolved_object     = field.resolve(context, object_type, object)
+      #
+      #       if resolved_object.is_a?(Celluloid::Future)
+      #         Execution::Pool.future do
+      #           complete_value(context, field_definition.type, resolved_object.value, merge_selection_sets(fields))
+      #         end
+      #       else
+      #         complete_value(context, field_definition.type, resolved_object, merge_selection_sets(fields))
+      #       end
+      #
+      #     rescue Celluloid::TaskTerminated => e
+      #       context[:errors] << "Field '#{field.name}' of '#{object_type}' error: #{e}"
+      #       nil
+      #     end unless field_definition.nil?
+      #
+      #     memo
+      #   end
+      # end
 
+
+      def evaluate(context, object_type, object, serially: false)
+        grouped_fields = collect_fields(context, object_type)
+
+        grouped_fields.reduce({}) do |memo, (key, fields)|
+
+          field = fields.first
+
+          field_definition = case
           when GraphQL::Introspection.meta_field?(field.name)
             GraphQL::Introspection.meta_field(field.name)
           else
             object_type.field(field.name)
           end
 
-
-          memo[key.to_sym]      = begin
-            resolved_object     = field.resolve(context, object_type, object)
-
-            if resolved_object.is_a?(Celluloid::Future)
-              Execution::Pool.future do
-                complete_value(context, field_definition.type, resolved_object.value, merge_selection_sets(fields))
-              end
-            else
-              complete_value(context, field_definition.type, resolved_object, merge_selection_sets(fields))
+          unless field_definition.nil?
+            context[:field_name] = field.name
+            value = Execution::Pool.future do
+              resolved_value  = field.resolve(context, object_type, object)
+              resolved_value  = resolved_value.value if resolved_value.is_a?(Celluloid::Future)
+              complete_value(context, field_definition.type, resolved_value, merge_selection_sets(fields))
             end
 
-          rescue Celluloid::TaskTerminated => e
-            context[:errors] << "Field '#{field.name}' of '#{object_type}' error: #{e}"
-            nil
-          end unless field_definition.nil?
+            memo[key.to_sym] = serially ? value.value : value
+          end
 
           memo
         end
@@ -108,6 +138,11 @@ module GraphQL
 
       def complete_value(context, field_type, resolved_object, selection_set)
         return nil if resolved_object.nil?
+
+        if resolved_object.is_a?(Exception)
+          context[:errors] << "Field '#{field_type}' of '#{context[:field_name]}' error: '#{resolved_object}'."
+          return nil
+        end
 
         case field_type
         when GraphQLNonNull

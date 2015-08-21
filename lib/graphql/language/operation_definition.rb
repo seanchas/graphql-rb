@@ -5,17 +5,16 @@ module GraphQL
 
       def evaluate(context)
         context[:variables] = materialize_variables(context[:schema], context[:params])
-        type == 'mutation' ? execute_serially(context) : execute(context)
+        arguments = [
+          type == 'mutation' ? context[:schema].mutation_type : context[:schema].query_type,
+          type == 'mutation'
+        ]
+        execute(context, *arguments)
       end
 
 
-      def execute(context)
-        selection_set.evaluate(context, context[:schema].query_type, context[:root])
-      end
-
-
-      def execute_serially(context)
-        raise "Not implemented. Yet."
+      def execute(context, type, serially = false)
+        selection_set.evaluate(context, type, context[:root], serially: serially)
       end
 
 
