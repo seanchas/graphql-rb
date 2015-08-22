@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    graphql-rb (0.0.7)
+    graphql-rb (0.0.8)
       celluloid
       parslet
 
@@ -93,3 +93,6 @@ DEPENDENCIES
   graphql-rb!
   rake
   rspec
+
+BUNDLED WITH
+   1.10.6

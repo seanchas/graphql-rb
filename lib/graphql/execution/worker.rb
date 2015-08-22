@@ -5,7 +5,7 @@ module GraphQL
 
     class Pool
       def self.future(&block)
-        pool.future.perform(block)
+        worker.future.perform(block)
       end
 
       protected
@@ -22,12 +22,13 @@ module GraphQL
         end
       end
 
-      def self.pool
-        Celluloid::Actor[pool_id] ||= Worker.pool
+      def self.worker
+        Celluloid::Actor[worker_id] || Worker.supervise(as: worker_id)
+        Celluloid::Actor[worker_id]
       end
 
-      def self.pool_id
-        @pool_id ||= SecureRandom.uuid
+      def self.worker_id
+        @worker_id ||= SecureRandom.uuid
       end
 
     end

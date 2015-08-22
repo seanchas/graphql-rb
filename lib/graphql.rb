@@ -6,7 +6,7 @@ require 'graphql/language'
 require 'graphql/version'
 require 'graphql/executor'
 require 'graphql/validator'
-require 'graphql/execution/pool'
+require 'graphql/execution/worker'
 
 module GraphQL
 
