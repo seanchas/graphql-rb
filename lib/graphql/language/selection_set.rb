@@ -10,42 +10,9 @@ module GraphQL
       #   6.4.1 Field entries
       #     GetFieldEntry implementation
       #       objectType, object, - fields
-      #         + context[schema, document]
+      #         + context
       #
       #
-      # def evaluate(context, object_type, object)
-      #   collect_fields(context, object_type).reduce({}) do |memo, (key, fields)|
-      #     field             = fields.first
-      #     field_definition  = case
-      #
-      #     when GraphQL::Introspection.meta_field?(field.name)
-      #       GraphQL::Introspection.meta_field(field.name)
-      #     else
-      #       object_type.field(field.name)
-      #     end
-      #
-      #
-      #     memo[key.to_sym]      = begin
-      #       resolved_object     = field.resolve(context, object_type, object)
-      #
-      #       if resolved_object.is_a?(Celluloid::Future)
-      #         Execution::Pool.future do
-      #           complete_value(context, field_definition.type, resolved_object.value, merge_selection_sets(fields))
-      #         end
-      #       else
-      #         complete_value(context, field_definition.type, resolved_object, merge_selection_sets(fields))
-      #       end
-      #
-      #     rescue Celluloid::TaskTerminated => e
-      #       context[:errors] << "Field '#{field.name}' of '#{object_type}' error: #{e}"
-      #       nil
-      #     end unless field_definition.nil?
-      #
-      #     memo
-      #   end
-      # end
-
-
       def evaluate(context, object_type, object, serially: false)
         grouped_fields = collect_fields(context, object_type)
 
@@ -79,7 +46,7 @@ module GraphQL
       #   6.3 Evaluate selection sets
       #     CollectFields implementation
       #       objectType, selectionSet = self, visitedFragments = []
-      #         + context[schema, document]
+      #         + context
       #
       def collect_fields(context, object_type, visited_fragments = [])
         memo = {}
