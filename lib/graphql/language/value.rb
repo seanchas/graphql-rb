@@ -10,7 +10,11 @@ module GraphQL
         when GraphQLList
           value.map { |value| value.materialize(type.of_type, variables) }
         when GraphQLInputObjectType
-          raise "Not. Implemented. Yet."
+          type.fields.reduce({}) do |memo, field|
+            value_for_field = value.find { |v| v[:name] == field.name }[:value]
+            memo[field.name.to_sym] = value_for_field.materialize(field.type, variables)
+            memo
+          end
         when GraphQLScalarType, GraphQLEnumType
           type.parse_literal(self)
         else
