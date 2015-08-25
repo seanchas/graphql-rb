@@ -103,7 +103,7 @@ module GraphQL
 
       field :inputFields, -> { + ! InputValue__ } do
         resolve lambda { |type|
-          type.fields.values if type.is_a?(GraphQLInputObjectType)
+          type.fields if type.is_a?(GraphQLInputObjectType)
         }
       end
 
