@@ -1,14 +1,14 @@
 module GraphQL
 
   class GraphQLInputObjectField < GraphQL::Configuration::Base
-    slot :name,           String
+    slot :name,           String,   coerce: -> (v) { v.to_s }
     slot :type,           GraphQLInputType
     slot :default_value,  Object,   null: true
     slot :description,    String,   null: true
   end
 
   class GraphQLInputObjectTypeConfiguration < GraphQL::Configuration::Base
-    slot :name,           String
+    slot :name,           String,   coerce: -> (v) { v.to_s }
     slot :fields,         [GraphQLInputObjectField], singular: :field
     slot :description,    String,   null: true
   end
