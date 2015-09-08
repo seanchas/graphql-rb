@@ -11,7 +11,10 @@ module GraphQL
         values = value.is_a?(Array) ? value : [value]
         values.map { |value| coerce_value(value, type.of_type) }
       when GraphQLInputObjectType
-        raise "Not. Implemented. Yet. ::coerce_value"
+        type.fields.reduce({}) do |memo, field|
+          memo[field.name.to_sym] = coerce_value(value[field.name], field.type)
+          memo
+        end
       when GraphQLScalarType, GraphQLEnumType
         type.parse_value(value)
       else
@@ -30,7 +33,7 @@ module GraphQL
         values = value.is_a?(Array) ? value : [value]
         values.all? { |value| valid_value?(value, type.of_type) }
       when GraphQLInputObjectType
-        raise "Not. Implemented. Yet. ::valid_value?"
+        return type.fields.all? { |field| valid_value?(value[field.name], field.type) }
       when GraphQLScalarType, GraphQLEnumType
         !type.parse_value(value).nil?
       else
