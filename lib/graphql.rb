@@ -16,7 +16,7 @@ module GraphQL
     result, errors  = executor.execute(root, params, operation)
     { data: result }.tap { |result| result[:errors] = errors unless errors.empty? }
   rescue StandardError => e
-    { errors: [e] }
+    { errors: [e.to_s] }
   end
 
 end
